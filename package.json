@@ -1,0 +1,26 @@
+{
+  "name": "wanderlust-stays",
+  "version": "1.0.0",
+  "description": "A production-ready Airbnb clone built with modern web technologies. Includes property listings, advanced search filters, map integration, host dashboard, user authentication, booking workflow, and responsive UI. Designed as a full-stack learning project demonstrating real-world app architecture and best practices.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kartikbhadane15/Wanderlust-stays.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kartikbhadane15/Wanderlust-stays/issues"
+  },
+  "homepage": "https://github.com/kartikbhadane15/Wanderlust-stays#readme",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mongoose": "^9.0.0"
+  }
+}
