@@ -28,7 +28,7 @@ router.get("/new", isLoggedIn, (req, res) => {
 
 // SHOW
 router.get("/:id", wrapAsync(async (req, res) => {
-  const listing = await Listing.findById(req.params.id).populate("reviews");
+  const listing = await Listing.findById(req.params.id).populate("reviews").populate("owner");
   if (!listing) {
     request.flash("error", "Listing not found");
     return res.redirect("/listings");
@@ -39,6 +39,7 @@ router.get("/:id", wrapAsync(async (req, res) => {
 // CREATE
 router.post("/", isLoggedIn, validateListing, wrapAsync(async (req, res) => {
   const listing = new Listing(req.body.listing);
+  newListing.owner = req.user._id;
   await listing.save();
   req.flash("success", "New Listing Created!");
   res.redirect("/listings");
