@@ -4,13 +4,14 @@ const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/ExpressError");
 const Listing = require("../models/listing");
 const Review = require("../models/review");
-const { validateReview } = require("../middleware");
+const { validateReview, isLoggedIn, isReviewAuthor } = require("../middleware");
 
 // CREATE REVIEW
 
-router.post("/", validateReview, wrapAsync(async (req, res) => {
+router.post("/",isLoggedIn, validateReview, wrapAsync(async (req, res) => {
   const listing = await Listing.findById(req.params.id);
   const review = new Review(req.body.review);
+  review.author = req.user._id;
 
   listing.reviews.push(review);
   await review.save();
@@ -20,7 +21,7 @@ router.post("/", validateReview, wrapAsync(async (req, res) => {
   res.redirect(`/listings/${listing._id}`);
 }));
 
-router.delete("/:reviewId", wrapAsync(async (req, res) => {
+router.delete("/:reviewId",isLoggedIn,isReviewAuthor, wrapAsync(async (req, res) => {
   const { id, reviewId } = req.params;
   await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
   await Review.findByIdAndDelete(reviewId);
