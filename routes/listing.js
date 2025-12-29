@@ -6,12 +6,18 @@ const Listing = require("../models/listing");
 const { isLoggedIn, isOwner,validateListing } = require("../middleware");
 const listingsController = require("../controllers/listings");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const { storage } = require("../cloudConfig");
+const upload = multer({ storage });
+
 
 router.route("/")
   .get(wrapAsync(listingsController.index))
   // .post(isLoggedIn, validateListing, wrapAsync(listingsController.createListing));
-  .post(isLoggedIn, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.createListing));
+  // .post(isLoggedIn, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.createListing));
+  .post( upload.single('listing[image][url]'), (req, res) => {
+    res.send(req.file);
+  }
+);
 
 // NEW (must come before dynamic routes like "/:id")
 router.get("/new", isLoggedIn, listingsController.renderNewForm);
