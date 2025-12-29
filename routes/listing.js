@@ -4,22 +4,24 @@ const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/ExpressError");
 const Listing = require("../models/listing");
 const { isLoggedIn, isOwner,validateListing } = require("../middleware");
-
 const listingsController = require("../controllers/listings");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 router.route("/")
   .get(wrapAsync(listingsController.index))
-  .post(isLoggedIn, validateListing, wrapAsync(listingsController.createListing));
+  // .post(isLoggedIn, validateListing, wrapAsync(listingsController.createListing));
+  .post(isLoggedIn, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.createListing));
+
+// NEW (must come before dynamic routes like "/:id")
+router.get("/new", isLoggedIn, listingsController.renderNewForm);
+
+// EDIT (specific route before dynamic "/:id")
+router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingsController.renderEditForm));
 
 router.route("/:id")
   .get(wrapAsync(listingsController.showListing))
   .put(isLoggedIn, isOwner, validateListing, wrapAsync(listingsController.updateListing))
   .delete(isLoggedIn, isOwner, wrapAsync(listingsController.deleteListing));
-
-// NEW
-router.get("/new", isLoggedIn, listingsController.renderNewForm);
-
-// EDIT
-router.get("/:id/edit", isLoggedIn,isOwner, wrapAsync(listingsController.renderEditForm));
 
 module.exports = router;
