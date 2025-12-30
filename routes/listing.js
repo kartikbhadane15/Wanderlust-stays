@@ -12,12 +12,7 @@ const upload = multer({ storage });
 
 router.route("/")
   .get(wrapAsync(listingsController.index))
-  // .post(isLoggedIn, validateListing, wrapAsync(listingsController.createListing));
-  // .post(isLoggedIn, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.createListing));
-  .post( upload.single('listing[image][url]'), (req, res) => {
-    res.send(req.file);
-  }
-);
+  .post(isLoggedIn, upload.single("listing[image][url]"), wrapAsync(listingsController.createListing));
 
 // NEW (must come before dynamic routes like "/:id")
 router.get("/new", isLoggedIn, listingsController.renderNewForm);
