@@ -33,6 +33,11 @@ geometry: {
       required: true
     }
   },
+  // category: {
+  //   type: String,
+  //   enum: ['Apartment', 'House', 'Villa', 'Cottage', 'Bungalow', 'Cabin', 'Other'],
+  //   default: 'Other'
+  // }
 });
 
 
