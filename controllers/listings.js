@@ -89,24 +89,52 @@ module.exports.renderEditForm = async (req, res) => {
 };
 
 /* ================= UPDATE ================= */
-module.exports.updateListing = async (req, res) => {
-  const { id } = req.params;
+module.exports.updateListing = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const newLocation = req.body.listing.location;
 
-  const listing = await Listing.findByIdAndUpdate(id, {
-    ...req.body.listing
-  });
+    const listing = await Listing.findByIdAndUpdate(
+      id,
+      { ...req.body.listing },
+      { new: true }
+    );
 
-  if (req.file) {
-    listing.image = {
-      url: req.file.path,
-      filename: req.file.filename
-    };
+    // ✅ If location changed → update geometry
+    if (newLocation) {
+      const geoRes = await axios.get(
+        `https://api.maptiler.com/geocoding/${encodeURIComponent(
+          newLocation
+        )}.json?key=${MAP_TOKEN}`
+      );
+
+      if (!geoRes.data.features.length) {
+        req.flash("error", "Invalid location");
+        return res.redirect(`/listings/${id}/edit`);
+      }
+
+      listing.geometry = {
+        type: "Point",
+        coordinates: geoRes.data.features[0].geometry.coordinates,
+      };
+    }
+
+    if (req.file) {
+      listing.image = {
+        url: req.file.path,
+        filename: req.file.filename,
+      };
+    }
+
     await listing.save();
-  }
 
-  req.flash("success", "Listing Updated!");
-  res.redirect(`/listings/${id}`);
+    req.flash("success", "Listing Updated!");
+    res.redirect(`/listings/${id}`);
+  } catch (err) {
+    next(err);
+  }
 };
+
 
 /* ================= DELETE ================= */
 module.exports.deleteListing = async (req, res) => {
