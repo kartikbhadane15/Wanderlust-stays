@@ -5,9 +5,23 @@ const MAP_TOKEN = process.env.MAP_TOKEN;
 
 /* ================= INDEX ================= */
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  const { q } = req.query;
+  let allListings;
+
+  if (q) {
+    allListings = await Listing.find({
+      $or: [
+        { title: { $regex: q, $options: "i" } },
+        { location: { $regex: q, $options: "i" } },
+      ],
+    });
+  } else {
+    allListings = await Listing.find({});
+  }
+
+  res.render("listings/index.ejs", { allListings, q });
 };
+
 
 /* ================= NEW ================= */
 module.exports.renderNewForm = (req, res) => {
