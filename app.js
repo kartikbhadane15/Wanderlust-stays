@@ -42,7 +42,18 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  secret: "mysupersecretcode",
+  touchAfter: 24 * 60 * 60,
+});
+
+store.on("error", (err) => {
+  console.log("SESSION STORE ERROR", err);
+});
+
 const sessionOptions = {
+  store: store,
   secret: "mysupersecretcode",
   resave: false,
   saveUninitialized: true,
@@ -55,6 +66,7 @@ const sessionOptions = {
 // app.get("/", (req, res) => {
 //   res.send("Hi, I am root");
 // });
+
 
 app.use(session(sessionOptions));
 app.use(flash());
