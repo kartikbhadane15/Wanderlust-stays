@@ -26,7 +26,7 @@ module.exports.isOwner = async (req, res, next) => {
         req.flash("error", "Listing not found");
         return res.redirect("/listings");
     }
-    // get owner id whether populated or as ObjectId
+    
     const ownerId = listing.owner && listing.owner._id ? listing.owner._id : listing.owner;
     if (!req.user || !ownerId || ownerId.toString() !== req.user._id.toString()) {
         req.flash("error", "You do not have permission to do that!");

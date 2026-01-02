@@ -28,44 +28,88 @@
   font-size: 1rem;
 }
 
+/* Keep search input + button in one line */
+.navbar form.d-flex {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+/* Equal height for input & button */
+.search-inp {
+  height: 44px;
+}
+
+.search-btn {
+  height: 44px;
+  white-space: nowrap;
+}
+
+
 </style>
 
 <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/listings"><i class="fa-solid fa-compass"></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
+    
+    <!-- Brand -->
+    <a class="navbar-brand" href="/listings">
+      <i class="fa-solid fa-compass"></i>
+    </a>
+
+    <!-- Toggle Button -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
+
+    <!-- Navbar Content -->
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+
+      <!-- Left Links -->
       <div class="navbar-nav">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
+
+      <!-- Search Form -->
       <div class="navbar-nav ms-auto">
-        <form class="d-flex" role="search" action="/listings" method="GET">
-  <input
-  class="form-control me-2 search-inp"
-  type="search"
-  name="q"
- value="<%= typeof q !== 'undefined' ? q : '' %>"
-  placeholder="Search destinations"
-/>
+        <form
+          class="d-flex"
+          role="search"
+          action="/listings"
+          method="GET"
+        >
+          <input
+            class="form-control me-2 search-inp"
+            type="search"
+            name="q"
+            value="<%= typeof q !== 'undefined' ? q : '' %>"
+            placeholder="Search destinations"
+          />
 
-  <button class="btn search-btn" type="submit">
-    <i class="fa-solid fa-magnifying-glass"></i>Search
-  </button>
-</form>
-
+          <button class="btn search-btn" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Search
+          </button>
+        </form>
       </div>
+
+      <!-- Auth Links -->
       <div class="navbar-nav ms-auto">
         <a class="nav-link" href="/listings/new">Wanderlust your home</a>
-        <% if(!currentUser) {%>
+
+        <% if(!currentUser) { %>
           <a class="nav-link" href="/signup"><b>Signup</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>
         <% } %>
-        <% if(currentUser) {%>
-           <a class="nav-link" href="/logout"><b>Log out</b></a>
+
+        <% if(currentUser) { %>
+          <a class="nav-link" href="/logout"><b>Log out</b></a>
         <% } %>
       </div>
+
     </div>
   </div>
 </nav>
