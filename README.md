@@ -1,4 +1,75 @@
-# Wanderlust-stays
-A production-ready Airbnb clone built with modern web technologies. Includes property listings, advanced search filters, map integration, host dashboard, user authentication, booking workflow, and responsive UI. Designed as a full-stack learning project demonstrating real-world app architecture and best practices.
+# Wanderlust Stays
 
-#Welcome to my website
+Wanderlust Stays is a full-stack web application for browsing, listing, reviewing, and managing travel stays with interactive maps and authentication.
+
+## Features
+- User signup & login (Passport.js)
+- Create, edit, delete listings with image upload (Cloudinary)
+- Reviews and ratings (only authenticated users)
+- Owner-only edit/delete authorization
+- Interactive maps (MapLibre / MapTiler)
+- Flash messages for feedback
+
+## Tech Stack
+- Node.js, Express
+- MongoDB, Mongoose
+- EJS templates, Bootstrap
+- Passport.js (local strategy)
+- MapLibre + MapTiler
+- Cloudinary for image storage
+
+## Project Structure
+```
+wanderlust-stays/
+├── controllers/
+├── models/
+├── routes/
+├── views/
+│   ├── layouts/
+│   ├── listings/
+│   └── includes/
+├── public/
+├── utils/
+├── app.js
+├── package.json
+└── .env
+```
+
+## Environment Variables
+Create a `.env` file in the project root with these variables (example values omitted):
+
+- CLOUD_NAME=
+- CLOUD_API_KEY=
+- CLOUD_API_SECRET=
+- MAP_TOKEN=
+- ATLASDB_URL=        # MongoDB connection string
+- SECRET_KEY=         # session secret
+
+Do not commit `.env` to version control.
+
+## Installation & Run
+1. Clone
+   git clone <repo-url>
+   cd wanderlust-stays
+
+2. Install
+   npm install
+
+3. Add `.env` with required variables (see above).
+
+4. Start
+   - Development: nodemon app.js
+   - Production / simple run: node app.js
+
+Open: http://localhost:8080
+
+## Notes & Troubleshooting
+- Ensure your Atlas cluster allows connections (IP whitelist).
+- If map tiles fail, verify MAP_TOKEN and include MapLibre CSS/JS in layout.
+- If Cloudinary upload fails, confirm cloud credentials in `.env`.
+
+## License
+MIT
+
+## Author
+Kartik Bhadane
