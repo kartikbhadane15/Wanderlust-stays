@@ -1,8 +1,11 @@
-# Wanderlust Stays
+# 🌍 Wanderlust Stays
 
 Wanderlust Stays is a full-stack web application for browsing, listing, reviewing, and managing travel stays with interactive maps and authentication.
 
-## Features
+## 🔗 Live Website:
+👉 https://wanderlust-stays-cde4.onrender.com/listings
+
+## 🚀 Features
 - User signup & login (Passport.js)
 - Create, edit, delete listings with image upload (Cloudinary)
 - Reviews and ratings (only authenticated users)
@@ -10,7 +13,7 @@ Wanderlust Stays is a full-stack web application for browsing, listing, reviewin
 - Interactive maps (MapLibre / MapTiler)
 - Flash messages for feedback
 
-## Tech Stack
+## 🛠️ Tech Stack
 - Node.js, Express
 - MongoDB, Mongoose
 - EJS templates, Bootstrap
@@ -18,7 +21,7 @@ Wanderlust Stays is a full-stack web application for browsing, listing, reviewin
 - MapLibre + MapTiler
 - Cloudinary for image storage
 
-## Project Structure
+## 📂 Project Structure
 ```
 wanderlust-stays/
 ├── controllers/
@@ -35,7 +38,7 @@ wanderlust-stays/
 └── .env
 ```
 
-## Environment Variables
+## ⚙️ Environment Variables
 Create a `.env` file in the project root with these variables (example values omitted):
 
 - CLOUD_NAME=
@@ -47,7 +50,7 @@ Create a `.env` file in the project root with these variables (example values om
 
 Do not commit `.env` to version control.
 
-## Installation & Run
+## ▶️ Installation & Run
 1. Clone
    git clone <repo-url>
    cd wanderlust-stays
@@ -68,8 +71,24 @@ Open: http://localhost:8080
 - If map tiles fail, verify MAP_TOKEN and include MapLibre CSS/JS in layout.
 - If Cloudinary upload fails, confirm cloud credentials in `.env`.
 
-## License
+## 📸 Screenshots
+![alt text](<Screenshot 2026-01-10 at 3.04.27 PM.png>)
+![alt text](<Screenshot 2026-01-10 at 3.06.39 PM.png>)
+
+## 🔮 Future Improvements
+- Booking system
+- Payment integration
+- Wishlist feature
+- Advanced search & filters
+- User profile pages
+- Admin dashboard
+
+## 🤝 Contributing
+Contributions are welcome!
+Feel free to fork this repository and submit a pull request.
+
+## 📜 License
 MIT
 
-## Author
+## 👨‍💻 Author
 Kartik Bhadane
