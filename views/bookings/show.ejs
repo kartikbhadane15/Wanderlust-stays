@@ -1,0 +1,239 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+  .booking-confirm-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .booking-status-banner {
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+    gap: 1rem;
+  }
+
+  .booking-status-banner.confirmed {
+    background-color: #f0fdf4;
+    border-bottom: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  .booking-status-banner.cancelled {
+    background-color: #fef2f2;
+    border-bottom: 1px solid #fecaca;
+    color: #991b1b;
+  }
+
+  .date-box {
+    background-color: #f8f9fa;
+    border: 1px solid #eaeaea;
+    border-radius: 0.85rem;
+    padding: 1rem 1.25rem;
+    transition: transform 0.15s ease;
+  }
+
+  .price-summary-card {
+    background: #fafafa;
+    border: 1px solid #eaeaea;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    .booking-confirm-card {
+      box-shadow: none !important;
+      border: 1px solid #000 !important;
+    }
+  }
+</style>
+
+<div class="row mt-4 mb-5">
+  <div class="col-12 col-lg-10 offset-lg-1">
+    
+    <!-- Top Action Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+      <a href="/bookings" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> All Trips
+      </a>
+      <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+          <i class="fa-solid fa-print me-1"></i> Print Receipt
+        </button>
+        <a href="/listings/<%= booking.listing ? booking.listing._id : '' %>" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fa-solid fa-house me-1"></i> View Stay
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Confirmation Container -->
+    <div class="booking-confirm-card mb-4">
+      
+      <!-- Status Banner -->
+      <div class="booking-status-banner <%= booking.status === 'confirmed' ? 'confirmed' : 'cancelled' %>">
+        <div class="d-flex align-items-center gap-2">
+          <% if (booking.status === 'confirmed') { %>
+            <i class="fa-solid fa-circle-check fs-3 text-success"></i>
+            <div>
+              <h5 class="fw-bold mb-0">Reservation Confirmed</h5>
+              <small class="text-muted">You are all set for your upcoming trip!</small>
+            </div>
+          <% } else { %>
+            <i class="fa-solid fa-circle-xmark fs-3 text-danger"></i>
+            <div>
+              <h5 class="fw-bold mb-0">Reservation Cancelled</h5>
+              <small class="text-muted">This booking has been cancelled.</small>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="text-md-end">
+          <div class="small text-muted text-uppercase fw-semibold">Confirmation Code</div>
+          <div class="fw-bold font-monospace fs-5 text-dark"><%= booking.bookingCode %></div>
+        </div>
+      </div>
+
+      <!-- Details Body -->
+      <div class="p-4 p-md-5">
+        <div class="row g-4">
+          
+          <!-- Left Column: Stay & Dates Details -->
+          <div class="col-12 col-md-7">
+            
+            <% if (booking.listing) { %>
+              <div class="d-flex gap-3 align-items-center mb-4">
+                <img 
+                  src="<%= booking.listing.image ? booking.listing.image.url : '' %>" 
+                  alt="<%= booking.listing.title %>" 
+                  class="rounded-3 shadow-sm"
+                  style="width: 100px; height: 100px; object-fit: cover;"
+                />
+                <div>
+                  <h5 class="fw-bold mb-1">
+                    <a href="/listings/<%= booking.listing._id %>" class="text-dark text-decoration-none">
+                      <%= booking.listing.title %>
+                    </a>
+                  </h5>
+                  <p class="text-muted small mb-1">
+                    <i class="fa-solid fa-location-dot me-1 text-danger"></i>
+                    <%= booking.listing.location %>, <%= booking.listing.country %>
+                  </p>
+                  <% if (booking.listing.owner) { %>
+                    <p class="small text-muted mb-0">
+                      Hosted by <b><%= booking.listing.owner.username %></b> (<%= booking.listing.owner.email %>)
+                    </p>
+                  <% } %>
+                </div>
+              </div>
+            <% } else { %>
+              <div class="alert alert-secondary">This listing has been deleted.</div>
+            <% } %>
+
+            <hr class="my-4">
+
+            <!-- Check-in / Check-out Cards -->
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <div class="date-box h-100">
+                  <span class="badge bg-light text-secondary border mb-1">CHECK-IN</span>
+                  <h6 class="fw-bold mb-0 text-dark">
+                    <%= new Date(booking.checkIn).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  </h6>
+                  <small class="text-muted">From 2:00 PM</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="date-box h-100">
+                  <span class="badge bg-light text-secondary border mb-1">CHECK-OUT</span>
+                  <h6 class="fw-bold mb-0 text-dark">
+                    <%= new Date(booking.checkOut).toLocaleDateString("en-US", { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  </h6>
+                  <small class="text-muted">Until 11:00 AM</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reservation Specs -->
+            <div class="list-group list-group-flush border rounded-3 mb-4">
+              <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted"><i class="fa-solid fa-moon me-2 text-secondary"></i> Length of Stay</span>
+                <span class="fw-semibold"><%= booking.totalNights %> night<%= booking.totalNights > 1 ? 's' : '' %></span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted"><i class="fa-solid fa-users me-2 text-secondary"></i> Guests</span>
+                <span class="fw-semibold"><%= booking.guests %> guest<%= booking.guests > 1 ? 's' : '' %></span>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted"><i class="fa-regular fa-calendar me-2 text-secondary"></i> Booked on</span>
+                <span class="text-muted small"><%= new Date(booking.createdAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }) %></span>
+              </div>
+              <% if (booking.specialRequests) { %>
+                <div class="list-group-item py-2">
+                  <span class="text-muted d-block small mb-1"><i class="fa-regular fa-comment-dots me-2 text-secondary"></i> Special Requests</span>
+                  <p class="mb-0 small bg-light p-2 rounded"><%= booking.specialRequests %></p>
+                </div>
+              <% } %>
+            </div>
+
+            <!-- Cancellation Action -->
+            <% if (booking.status === 'confirmed') { %>
+              <div class="no-print">
+                <form method="POST" action="/bookings/<%= booking._id %>/cancel" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                  <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-ban me-1"></i> Cancel Reservation
+                  </button>
+                  <small class="text-muted d-block mt-2">Free cancellation is supported. Cancellation will free up the stay.</small>
+                </form>
+              </div>
+            <% } %>
+
+          </div>
+
+          <!-- Right Column: Price Breakdown / Invoice -->
+          <div class="col-12 col-md-5">
+            <div class="price-summary-card">
+              <h5 class="fw-bold mb-3 text-dark">Price Breakdown</h5>
+
+              <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted">&#8377; <%= booking.pricePerNight.toLocaleString("en-IN") %> &times; <%= booking.totalNights %> night<%= booking.totalNights > 1 ? 's' : '' %></span>
+                <span class="fw-semibold">&#8377; <%= booking.basePrice.toLocaleString("en-IN") %></span>
+              </div>
+
+              <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted">GST &amp; Service Fee (18%)</span>
+                <span class="fw-semibold">&#8377; <%= booking.gst.toLocaleString("en-IN") %></span>
+              </div>
+
+              <div class="d-flex justify-content-between py-3 fs-5 fw-bold text-dark">
+                <span>Total Paid (INR)</span>
+                <span class="text-danger">&#8377; <%= booking.totalPrice.toLocaleString("en-IN") %></span>
+              </div>
+
+              <div class="mt-3 p-3 bg-white rounded-3 border">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <i class="fa-solid fa-shield-halved text-success"></i>
+                  <span class="small fw-semibold">Wanderlust Protection</span>
+                </div>
+                <p class="small text-muted mb-0">
+                  Your reservation is protected against host cancellations, inaccurate listings, and check-in issues.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

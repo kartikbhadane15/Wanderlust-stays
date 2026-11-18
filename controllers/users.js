@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Listing = require("../models/listing");
 const Review = require("../models/review");
+const Booking = require("../models/booking");
 
 module.exports.renderSignupForm = (req, res) => {
   res.render("users/signup.ejs");
@@ -70,6 +71,16 @@ module.exports.renderProfile = async (req, res) => {
         };
     });
 
+    const myBookings = await Booking.find({ user: req.user._id })
+        .populate("listing")
+        .sort({ createdAt: -1 });
+
+    const myListingIds = myListings.map(l => l._id);
+    const hostBookings = await Booking.find({ listing: { $in: myListingIds } })
+        .populate("listing")
+        .populate("user")
+        .sort({ createdAt: -1 });
+
     const memberSince = (user.createdAt || user._id.getTimestamp()).toLocaleDateString("en-US", {
         month: "long",
         year: "numeric"
@@ -79,6 +90,8 @@ module.exports.renderProfile = async (req, res) => {
         user,
         myListings,
         myReviews: myReviewsWithListings,
+        myBookings,
+        hostBookings,
         memberSince
     });
 };
