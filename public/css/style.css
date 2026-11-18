@@ -1622,6 +1622,74 @@ footer {
   transition: width 0.6s ease;
 }
 
+/* ========================================================
+   TRIPS & RESERVATIONS HEADER & VIEW RECEIPT BUTTON
+   ======================================================== */
+
+.trips-header-wrapper {
+  padding-bottom: 1rem;
+}
+
+.explore-stays-btn {
+  border-color: #222222;
+  color: #222222;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
+  background-color: #ffffff;
+  white-space: nowrap;
+}
+
+.explore-stays-btn:hover {
+  background-color: #222222;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.explore-stays-btn:hover i {
+  color: #ffffff !important;
+}
+
+.trip-card-actions {
+  width: 100%;
+}
+
+.trip-view-receipt-btn {
+  border-color: #222222;
+  color: #222222;
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  background-color: #ffffff;
+}
+
+.trip-view-receipt-btn:hover {
+  background-color: #222222;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.trip-view-receipt-btn:hover i {
+  color: #ffffff !important;
+}
+
+.trip-cancel-link {
+  font-size: 0.8rem;
+  color: #717171 !important;
+  transition: color 0.18s ease;
+}
+
+.trip-cancel-link:hover {
+  color: #dc3545 !important;
+  text-decoration: underline !important;
+}
+
+
 
 
 

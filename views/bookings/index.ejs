@@ -2,14 +2,17 @@
 
 <div class="mt-4 mb-5">
   
-  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div class="trips-header-wrapper mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
     <div>
       <h2 class="fw-bold mb-1">Your Trips &amp; Reservations</h2>
       <p class="text-muted mb-0">Manage your upcoming stays and reservation receipts.</p>
     </div>
-    <a href="/listings" class="btn btn-outline-dark rounded-pill px-4">
-      <i class="fa-solid fa-compass me-1"></i> Explore Stays
-    </a>
+    <div>
+      <a href="/listings" class="btn btn-outline-dark rounded-pill px-4 py-2 d-inline-flex align-items-center gap-2 explore-stays-btn">
+        <i class="fa-solid fa-compass text-danger"></i>
+        <span>Explore Stays</span>
+      </a>
+    </div>
   </div>
 
   <% if (hostBookings && hostBookings.length > 0) { %>
@@ -96,20 +99,24 @@
 
                   <div>
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top mb-3">
-                      <span class="text-muted small">Total Price</span>
-                      <span class="fw-bold text-dark fs-6">&#8377; <%= booking.totalPrice.toLocaleString("en-IN") %></span>
+                      <span class="text-muted small fw-semibold">Total Price</span>
+                      <span class="fw-bold text-dark fs-5">&#8377; <%= booking.totalPrice.toLocaleString("en-IN") %></span>
                     </div>
 
-                    <div class="d-flex gap-2">
-                      <a href="/bookings/<%= booking._id %>" class="btn btn-sm btn-dark flex-grow-1">
-                        View Receipt
+                    <div class="trip-card-actions">
+                      <a href="/bookings/<%= booking._id %>" class="btn btn-outline-dark rounded-pill w-100 py-2 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 trip-view-receipt-btn">
+                        <i class="fa-solid fa-receipt text-danger"></i>
+                        <span>View Receipt</span>
                       </a>
+                      
                       <% if (booking.status === 'confirmed') { %>
-                        <form method="POST" action="/bookings/<%= booking._id %>/cancel" onsubmit="return confirm('Cancel this reservation?');">
-                          <button class="btn btn-sm btn-outline-danger" title="Cancel Reservation">
-                            <i class="fa-solid fa-ban"></i>
-                          </button>
-                        </form>
+                        <div class="text-center mt-2">
+                          <form method="POST" action="/bookings/<%= booking._id %>/cancel" class="d-inline m-0" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                            <button type="submit" class="btn btn-link btn-sm text-muted text-decoration-none p-0 trip-cancel-link" title="Cancel this reservation">
+                              <i class="fa-solid fa-xmark text-danger me-1"></i>Cancel reservation
+                            </button>
+                          </form>
+                        </div>
                       <% } %>
                     </div>
                   </div>
