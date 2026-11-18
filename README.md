@@ -75,6 +75,33 @@ A full-stack, production-ready travel accommodation and home-sharing platform in
 
 ---
 
+## 📸 Screenshots & UI Showcase
+
+### 1. Explore Stays & Interactive Grid
+![Explore Stays](assets/screenshots/explore-page.png)
+
+### 2. Split Map View ("Explore on Map")
+![Split Map View](assets/screenshots/split-map-view.png)
+
+### 3. Property Showcase, Photo Gallery & Interactive Map
+![Property Details](assets/screenshots/listing-details.png)
+
+### 4. Booking & Live Reservation Engine
+![Reservation Widget](assets/screenshots/booking-reservation.png)
+
+### 5. Trips & Reservation Management
+![Trips and Reservations](assets/screenshots/trips-reservations.jpg)
+
+### 6. User Profile & Host Dashboard
+![User Profile & Dashboard](assets/screenshots/user-profile-dashboard.jpg)
+
+### 7. Authentication (Login & Signup)
+| Login Interface | Signup Interface |
+| :---: | :---: |
+| ![Login Page](assets/screenshots/login-page.png) | ![Signup Page](assets/screenshots/signup-page.png) |
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technologies |

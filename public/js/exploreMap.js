@@ -24,9 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const markers = new Map();
   let isMapActive = false;
 
-  // Restore saved view preference (default to list view)
+  // Restore saved view preference or URL query param (e.g. ?view=split)
+  const urlParams = new URLSearchParams(window.location.search);
+  const isSplitParam = urlParams.get("view") === "split";
   const savedView = localStorage.getItem("wanderlust_map_view");
-  if (savedView === "split" && window.innerWidth >= 992) {
+  if ((isSplitParam || savedView === "split") && window.innerWidth >= 992) {
     enableSplitView(false);
   }
 
