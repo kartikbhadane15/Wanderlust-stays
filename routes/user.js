@@ -21,4 +21,7 @@ router.get("/logout",usersController.logout);
 
 router.get("/wishlist", isLoggedIn, wrapAsync(usersController.renderWishlist));
 
+router.get("/profile", isLoggedIn, wrapAsync(usersController.renderProfile));
+router.get("/dashboard", isLoggedIn, wrapAsync(usersController.renderProfile));
+
 module.exports = router;

@@ -139,7 +139,10 @@
               <span class="badge rounded-pill bg-danger ms-1 d-none" id="navWishlistBadge" style="font-size: 0.65rem;">0</span>
             <% } %>
           </a>
-          <span class="nav-link text-muted d-none d-lg-inline">Hi, <%= currentUser.username %></span>
+          <a class="nav-link d-inline-flex align-items-center" href="/profile" title="View Profile & Host Dashboard">
+            <i class="fa-regular fa-circle-user me-1"></i>
+            <span><%= currentUser.username %></span>
+          </a>
           <a class="nav-link" href="/logout"><b>Log out</b></a>
         <% } %>
       </div>

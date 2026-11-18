@@ -14,7 +14,7 @@ const userSchema = new Schema({
             ref: "Listing",
         },
     ],
-});
+}, { timestamps: true });
 
 userSchema.plugin(passportLocalMongoose);
 

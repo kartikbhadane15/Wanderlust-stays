@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const Listing = require("../models/listing");
+const Review = require("../models/review");
 
 module.exports.renderSignupForm = (req, res) => {
   res.render("users/signup.ejs");
@@ -48,4 +50,35 @@ module.exports.logout =  (req, res, next) => {
 module.exports.renderWishlist = async (req, res) => {
     const user = await User.findById(req.user._id).populate("wishlist");
     res.render("users/wishlist.ejs", { wishlist: user.wishlist || [] });
+};
+
+module.exports.renderProfile = async (req, res) => {
+    const user = await User.findById(req.user._id).populate("wishlist");
+    const myListings = await Listing.find({ owner: req.user._id }).populate("reviews");
+    const myReviews = await Review.find({ author: req.user._id });
+
+    const reviewIds = myReviews.map(r => r._id);
+    const myReviewedListings = await Listing.find({ reviews: { $in: reviewIds } });
+
+    const myReviewsWithListings = myReviews.map(review => {
+        const parentListing = myReviewedListings.find(l => 
+            l.reviews.some(r => r.toString() === review._id.toString())
+        );
+        return {
+            review,
+            listing: parentListing
+        };
+    });
+
+    const memberSince = (user.createdAt || user._id.getTimestamp()).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+    });
+
+    res.render("users/profile.ejs", {
+        user,
+        myListings,
+        myReviews: myReviewsWithListings,
+        memberSince
+    });
 };
