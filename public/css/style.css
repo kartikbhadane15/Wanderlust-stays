@@ -1,5 +1,10 @@
+/* ==========================================================================
+   0. ROOT & GLOBAL BASE STYLES
+   ========================================================================== */
 :root {
   --target-size: 36px;
+  --theme-color: #fe424d;
+  --theme-color-hover: #e0323d;
 }
 
 @media (pointer: coarse) {
@@ -35,7 +40,9 @@ p {
   min-block-size: var(--target-size);
 }
 
-/* Navbar */
+/* ==========================================================================
+   1. NAVIGATION BAR & SEARCH
+   ========================================================================== */
 .navbar {
   min-height: 4.5rem;
   background-color: white;
@@ -58,52 +65,223 @@ p {
   color: #fe424d !important;
 }
 
-/* Footer */
-footer {
-  margin-top: auto;
+.search-btn {
+  background-color: #fe424d;
+  color: #fff;
+  border-radius: 25px;
+  padding: 0.45rem 1.25rem;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  height: 44px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.f-info {
-  text-align: center;
-  min-height: 8rem;
-  padding: 1.5rem 1rem;
-  background-color: #f7f7f7;
-  border-top: 1px solid #eaeaea;
+.search-btn:hover {
+  background-color: #e63946;
+  color: #fff;
+}
+
+.search-btn:active {
+  transform: translateY(1px);
+}
+
+.search-btn i {
+  margin-right: 0.5rem;
+}
+
+.search-inp {
+  border-radius: 25px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+  height: 44px;
+  min-width: 220px;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.search-inp:focus {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-color: #fe424d;
+}
+
+@media (max-width: 767.98px) {
+  .navbar .search-inp {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .navbar form.d-flex {
+    width: 100%;
+    margin: 0.75rem 0;
+  }
+
+  .navbar-collapse {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .navbar-nav {
+    gap: 0.25rem;
+  }
+}
+
+/* ==========================================================================
+   2. CATEGORY FILTERS & TAX TOGGLE
+   ========================================================================== */
+.filters-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+#filters {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.25rem 0;
+}
+
+#filters::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.filter {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  text-align: center;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  flex: 0 0 auto;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 0.3rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 
-.f-info-socials i {
-  margin: 0 0.5rem;
-  font-size: 1.25rem;
-  color: #222222;
-  transition: color 0.2s ease;
-}
-
-.f-info-socials i:hover {
+.filter:hover {
+  opacity: 1;
+  transform: translateY(-1px);
   color: #fe424d;
 }
 
-.f-info-links a {
-  text-decoration: none;
+.filter.active-filter {
+  opacity: 1;
+  color: #fe424d;
+  border-bottom: 2.5px solid #fe424d;
+}
+
+.filter.active-filter p {
+  font-weight: 700;
+  color: #fe424d;
+}
+
+.filter .icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.filter i {
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter p {
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin: 0;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+/* Compact Tax Toggle Pill */
+.tax-toggle {
+  border: 1px solid #b0b0b0;
+  border-radius: 0.75rem;
+  padding: 0.45rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tax-toggle:hover {
+  border-color: #222222;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tax-toggle-label {
+  font-size: 0.78rem;
+  font-weight: 600;
   color: #222222;
-  margin: 0 0.5rem;
-  font-size: 0.9rem;
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.f-info-links a:hover {
-  text-decoration: underline;
+.tax-toggle .form-check-input {
+  cursor: pointer;
+  width: 2.2rem;
+  height: 1.2rem;
+  margin: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.f-info-brand {
-  font-size: 0.9rem;
-  color: #555555;
+.tax-toggle .form-check-input:checked {
+  background-color: #222222;
+  border-color: #222222;
 }
 
-/* Cards (Airbnb Style) */
+.tax-toggle .form-check-input:focus {
+  box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.1);
+  border-color: #222222;
+}
+
+@media (max-width: 640px) {
+  .filters-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .tax-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* ==========================================================================
+   3. LISTING CARDS & EXPLORE GRID
+   ========================================================================== */
 .listing-card {
   border: none !important;
   margin-bottom: 1.5rem;
@@ -148,27 +326,56 @@ footer {
   background-color: black;
 }
 
-/* Buttons */
-.add-btn, .edit-btn {
-  background-color: #fe424d !important;
-  border: none !important;
-  color: white !important;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1.5rem;
-  font-weight: 500;
+/* Floating Wishlist Heart Button on Cards */
+.wishlist-heart-btn {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 10;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
 }
 
-.add-btn:hover, .edit-btn:hover {
-  background-color: #e0323d !important;
+.wishlist-heart-btn:hover {
+  transform: scale(1.18);
 }
 
-/* Show Page */
+.wishlist-heart-btn i {
+  font-size: 1.45rem;
+  color: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.wishlist-heart-btn.active i {
+  color: #fe424d !important;
+  filter: drop-shadow(0 2px 4px rgba(254, 66, 77, 0.5));
+}
+
+/* ==========================================================================
+   4. LISTING DETAILS (SHOW PAGE) & RESERVATION WIDGET
+   ========================================================================== */
+.show-card {
+  border: none;
+}
+
 .show-img {
   width: 100%;
-  max-height: 25rem;
-  aspect-ratio: 16 / 9;
+  height: 24rem;
   object-fit: cover;
-  border-radius: 1rem;
+  border-radius: 1.25rem;
+}
+
+@media (max-width: 991.98px) {
+  .show-img {
+    height: 18rem;
+  }
 }
 
 .btns {
@@ -177,7 +384,6 @@ footer {
   gap: 1rem;
 }
 
-/* Map Container */
 #map {
   width: 100%;
   max-width: 100%;
@@ -191,4 +397,293 @@ footer {
   #map {
     height: 260px;
   }
+}
+
+/* Sticky Airbnb Reservation Widget */
+.reservation-widget {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.booking-dates-box {
+  border: 1px solid #b0b0b0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.booking-dates-box input[type="date"],
+.booking-dates-box select {
+  font-size: 0.88rem;
+  background: transparent;
+}
+
+.booking-dates-box input[type="date"]:focus,
+.booking-dates-box select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   5. BOOKINGS & TRIP CONFIRMATION
+   ========================================================================== */
+.trip-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.trip-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.trip-card-img {
+  height: 14rem;
+  object-fit: cover;
+  width: 100%;
+}
+
+.booking-confirm-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.booking-status-banner {
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.booking-status-banner.confirmed {
+  background-color: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.booking-status-banner.cancelled {
+  background-color: #fef2f2;
+  border-bottom: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.date-box {
+  background-color: #f8f9fa;
+  border: 1px solid #eaeaea;
+  border-radius: 0.85rem;
+  padding: 1rem 1.25rem;
+  transition: transform 0.15s ease;
+}
+
+.price-summary-card {
+  background: #fafafa;
+  border: 1px solid #eaeaea;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .booking-confirm-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+}
+
+/* ==========================================================================
+   6. USER PROFILE & HOST DASHBOARD
+   ========================================================================== */
+.profile-header-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+  border: 1px solid #eaeaea;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #fe424d 0%, #ff5a5f 100%);
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(254, 66, 77, 0.3);
+}
+
+.stat-badge {
+  background-color: #f7f7f7;
+  border: 1px solid #e8e8e8;
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  text-align: center;
+  min-width: 100px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+.stat-badge .stat-num {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #222222;
+  line-height: 1.2;
+}
+
+.stat-badge .stat-label {
+  font-size: 0.75rem;
+  color: #717171;
+  font-weight: 500;
+  margin: 0;
+}
+
+.dashboard-tabs .nav-link {
+  color: #717171 !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0;
+}
+
+.dashboard-tabs .nav-link:hover {
+  color: #222222 !important;
+}
+
+.dashboard-tabs .nav-link.active {
+  color: #fe424d !important;
+  background: transparent;
+  border-bottom: 2.5px solid #fe424d;
+}
+
+.host-listing-card {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.host-listing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   7. WISHLIST VIEW
+   ========================================================================== */
+.wishlist-card {
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wishlist-card:hover {
+  transform: translateY(-3px);
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
+  background: #ffffff;
+}
+
+.wishlist-btn i {
+  font-size: 1.15rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.wishlist-btn.active i {
+  color: #fe424d;
+}
+
+/* ==========================================================================
+   8. FOOTER & GENERAL BUTTONS
+   ========================================================================== */
+.add-btn, .edit-btn {
+  background-color: #fe424d !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+}
+
+.add-btn:hover, .edit-btn:hover {
+  background-color: #e0323d !important;
+}
+
+footer {
+  margin-top: auto;
+}
+
+.f-info {
+  text-align: center;
+  min-height: 8rem;
+  padding: 1.5rem 1rem;
+  background-color: #f7f7f7;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.f-info-socials i {
+  margin: 0 0.5rem;
+  font-size: 1.25rem;
+  color: #222222;
+  transition: color 0.2s ease;
+}
+
+.f-info-socials i:hover {
+  color: #fe424d;
+}
+
+.f-info-links a {
+  text-decoration: none;
+  color: #222222;
+  margin: 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.f-info-links a:hover {
+  text-decoration: underline;
+}
+
+.f-info-brand {
+  font-size: 0.9rem;
+  color: #555555;
 }

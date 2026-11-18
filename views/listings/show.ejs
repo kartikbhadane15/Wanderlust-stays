@@ -5,44 +5,6 @@
   const listing = JSON.parse('<%- JSON.stringify(listing || {}) %>');
 </script>
 
-<style>
-  .show-card {
-    border: none;
-  }
-  .show-img {
-    height: 24rem;
-    object-fit: cover;
-    border-radius: 1.25rem;
-    width: 100%;
-  }
-  .reservation-widget {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 1.25rem;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  }
-  .booking-dates-box {
-    border: 1px solid #b0b0b0;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-  .booking-dates-box input[type="date"],
-  .booking-dates-box select {
-    font-size: 0.88rem;
-    background: transparent;
-  }
-  .booking-dates-box input[type="date"]:focus,
-  .booking-dates-box select:focus {
-    outline: none;
-    box-shadow: none;
-  }
-  @media (max-width: 991.98px) {
-    .show-img {
-      height: 18rem;
-    }
-  }
-</style>
-
 <div class="row mt-3 mb-5">
   
   <% 
