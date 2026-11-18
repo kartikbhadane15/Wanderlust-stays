@@ -27,14 +27,23 @@
 
       <div class="row">
         <div class="mb-3 col-md-6">
-          <label for="image" class="form-label fw-semibold">Upload Listing Image</label>
+          <label for="imageUpload" class="form-label fw-semibold">
+            Upload Photos (up to 5 photos)
+          </label>
           <input
-            name="listing[image][url]"
+            id="imageUpload"
+            name="listing[images]"
             type="file"
             class="form-control"
+            multiple
+            accept="image/*"
             required
           />
-          <div class="invalid-feedback">Please choose an image to upload.</div>
+          <div class="form-text">Choose up to 5 photos. The first image will be your main cover photo.</div>
+          <div class="invalid-feedback">Please choose at least one image to upload.</div>
+          
+          <!-- Live Preview Container -->
+          <div id="imagePreviewContainer" class="d-flex gap-2 flex-wrap mt-2"></div>
         </div>
 
         <div class="mb-3 col-md-6">
@@ -86,3 +95,41 @@
     </form>
   </div>
 </div>
+
+<script>
+  const imageUpload = document.getElementById("imageUpload");
+  const previewContainer = document.getElementById("imagePreviewContainer");
+
+  if (imageUpload && previewContainer) {
+    imageUpload.addEventListener("change", function () {
+      previewContainer.innerHTML = "";
+      const files = Array.from(this.files).slice(0, 5);
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "position-relative";
+          wrapper.style.width = "75px";
+          wrapper.style.height = "55px";
+
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.className = "rounded border shadow-sm w-100 h-100";
+          img.style.objectFit = "cover";
+
+          if (index === 0) {
+            const badge = document.createElement("span");
+            badge.className = "badge bg-danger position-absolute top-0 start-0 m-1 p-1";
+            badge.style.fontSize = "0.55rem";
+            badge.textContent = "Cover";
+            wrapper.appendChild(badge);
+          }
+
+          wrapper.appendChild(img);
+          previewContainer.appendChild(wrapper);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  }
+</script>

@@ -12,9 +12,16 @@ module.exports.listingSchema = Joi.object({
         image: Joi.object({
             url: Joi.string().allow("", null),
             filename: Joi.string().allow("", null)
-        })
-    }).required()
-});
+        }).optional(),
+        images: Joi.array().items(
+            Joi.object({
+                url: Joi.string().allow("", null),
+                filename: Joi.string().allow("", null)
+            })
+        ).optional()
+    }).required(),
+    deleteImages: Joi.array().items(Joi.string()).optional()
+}).unknown(true);
 
 module.exports.reviewSchema = Joi.object({
     review: Joi.object({

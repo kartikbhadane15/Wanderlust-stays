@@ -75,10 +75,20 @@ module.exports.createListing = async (req, res, next) => {
 
     const listing = new Listing(req.body.listing);
     listing.owner = req.user._id;
-    listing.image = {
-      url: req.file.path,
-      filename: req.file.filename
-    };
+
+    // Handle multiple or single image uploads
+    const files = (req.files && req.files["listing[images]"]) || 
+                  (req.files && req.files["listing[image][url]"]) || 
+                  (req.file ? [req.file] : []);
+
+    if (files.length > 0) {
+      const uploadedImages = files.map(f => ({ url: f.path, filename: f.filename }));
+      listing.images = uploadedImages;
+      listing.image = uploadedImages[0];
+    } else {
+      req.flash("error", "At least one image is required!");
+      return res.redirect("/listings/new");
+    }
 
     listing.geometry = {
       type: "Point",
@@ -103,50 +113,82 @@ module.exports.renderEditForm = async (req, res) => {
     return res.redirect("/listings");
   }
 
-  const originalImageUrl = listing.image.url.replace(
-    "/upload",
-    "/upload/w_250"
-  );
+  const images = (listing.images && listing.images.length > 0)
+    ? listing.images
+    : (listing.image && listing.image.url ? [listing.image] : []);
 
-  res.render("listings/edit.ejs", { listing, originalImageUrl });
+  const originalImageUrl = listing.image && listing.image.url
+    ? listing.image.url.replace("/upload", "/upload/w_250")
+    : "";
+
+  res.render("listings/edit.ejs", { listing, images, originalImageUrl });
 };
 
 /* ================= UPDATE ================= */
 module.exports.updateListing = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const newLocation = req.body.listing.location;
+    const newLocation = req.body.listing ? req.body.listing.location : null;
 
-    const listing = await Listing.findByIdAndUpdate(
-      id,
-      { ...req.body.listing },
-      { new: true }
-    );
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      req.flash("error", "Listing not found!");
+      return res.redirect("/listings");
+    }
+
+    if (req.body.listing) {
+      Object.assign(listing, req.body.listing);
+    }
 
     // ✅ If location changed → update geometry
-    if (newLocation) {
+    if (newLocation && newLocation !== listing.location) {
       const geoRes = await axios.get(
         `https://api.maptiler.com/geocoding/${encodeURIComponent(
           newLocation
         )}.json?key=${MAP_TOKEN}`
       );
 
-      if (!geoRes.data.features.length) {
-        req.flash("error", "Invalid location");
-        return res.redirect(`/listings/${id}/edit`);
+      if (geoRes.data.features && geoRes.data.features.length) {
+        listing.geometry = {
+          type: "Point",
+          coordinates: geoRes.data.features[0].geometry.coordinates,
+        };
       }
-
-      listing.geometry = {
-        type: "Point",
-        coordinates: geoRes.data.features[0].geometry.coordinates,
-      };
     }
 
-    if (req.file) {
-      listing.image = {
-        url: req.file.path,
-        filename: req.file.filename,
-      };
+    // Handle new uploaded images
+    const files = (req.files && req.files["listing[images]"]) || 
+                  (req.files && req.files["listing[image][url]"]) || 
+                  (req.file ? [req.file] : []);
+
+    if (files.length > 0) {
+      const newImages = files.map(f => ({ url: f.path, filename: f.filename }));
+      if (!listing.images || listing.images.length === 0) {
+        listing.images = (listing.image && listing.image.url) ? [listing.image, ...newImages] : newImages;
+      } else {
+        listing.images.push(...newImages);
+      }
+    }
+
+    // Handle deleting selected images
+    if (req.body.deleteImages) {
+      const toDelete = Array.isArray(req.body.deleteImages)
+        ? req.body.deleteImages
+        : [req.body.deleteImages];
+
+      const { cloudinary } = require("../cloudConfig");
+      for (let filename of toDelete) {
+        if (filename) {
+          cloudinary.uploader.destroy(filename).catch(() => {});
+        }
+      }
+
+      listing.images = listing.images.filter(img => !toDelete.includes(img.filename));
+    }
+
+    // Ensure cover image matches primary photo
+    if (listing.images && listing.images.length > 0) {
+      listing.image = listing.images[0];
     }
 
     await listing.save();

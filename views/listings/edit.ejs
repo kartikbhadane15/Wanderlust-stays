@@ -19,15 +19,54 @@
         <div class="invalid-feedback">Please enter a short description.</div>
       </div>
       
-      <div class="mb-3">
-        <label class="form-label fw-semibold d-block">Current Listing Image</label>
-        <img src="<%= originalImageUrl %>" class="img-thumbnail rounded shadow-sm" style="max-height: 200px; width: auto; object-fit: cover;" alt="<%= listing.title %>">
+      <!-- Current Photos & Management -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-block">Current Photos (<%= images.length %>)</label>
+        <% if (images && images.length > 0) { %>
+          <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mb-2">
+            <% images.forEach((img, index) => { %>
+              <div class="col">
+                <div class="card h-100 border shadow-sm rounded-3 overflow-hidden">
+                  <div class="position-relative" style="height: 110px;">
+                    <img 
+                      src="<%= img.url ? img.url.replace('/upload', '/upload/w_250') : '' %>" 
+                      class="w-100 h-100" 
+                      style="object-fit: cover;" 
+                      alt="Listing photo <%= index + 1 %>"
+                    >
+                    <% if (index === 0) { %>
+                      <span class="badge bg-danger position-absolute top-0 start-0 m-1" style="font-size: 0.65rem;">Cover</span>
+                    <% } %>
+                  </div>
+                  <div class="card-body p-2 bg-light text-center">
+                    <div class="form-check d-inline-block m-0">
+                      <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        name="deleteImages[]" 
+                        value="<%= img.filename %>" 
+                        id="del-<%= index %>"
+                      >
+                      <label class="form-check-label text-danger small fw-semibold" for="del-<%= index %>">
+                        Delete
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          <small class="text-muted d-block">Check the box under any photo to remove it upon saving.</small>
+        <% } else { %>
+          <p class="text-muted small">No photos uploaded yet.</p>
+        <% } %>
       </div>
 
       <div class="row">
         <div class="mb-3 col-md-6">
-          <label for="image" class="form-label fw-semibold">Upload New Image (optional)</label>
-          <input name="listing[image][url]" type="file" class="form-control"/>
+          <label for="newImages" class="form-label fw-semibold">Upload Additional Photos (optional)</label>
+          <input id="newImages" name="listing[images]" type="file" class="form-control" multiple accept="image/*"/>
+          <div class="form-text">You can select multiple photos to add to your gallery.</div>
         </div>
 
         <div class="mb-3 col-md-6">

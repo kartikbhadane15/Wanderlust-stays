@@ -5,13 +5,16 @@
   const listing = JSON.parse('<%- JSON.stringify(listing || {}) %>');
 </script>
 
+<% 
+   const isWishlisted = (currentUser && currentUser.wishlist) ? currentUser.wishlist.some(id => id.toString() === listing._id.toString()) : false;
+   const isHost = (currentUser && listing.owner && listing.owner._id.equals(currentUser._id));
+   const galleryImages = (listing.images && listing.images.length > 0) 
+     ? listing.images 
+     : (listing.image && listing.image.url ? [listing.image] : []);
+%>
+
 <div class="row mt-3 mb-5">
   
-  <% 
-     const isWishlisted = (currentUser && currentUser.wishlist) ? currentUser.wishlist.some(id => id.toString() === listing._id.toString()) : false;
-     const isHost = (currentUser && listing.owner && listing.owner._id.equals(currentUser._id));
-  %>
-
   <!-- Listing Header (Title, Location, Save Button) -->
   <div class="col-12 mb-3">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -39,14 +42,77 @@
     </div>
   </div>
 
-  <!-- Left Main Column: Image, Info, Reviews, Map -->
+  <!-- Photo Showcase Section -->
+  <div class="col-12 mb-4">
+    <% if (galleryImages.length > 1) { %>
+      
+      <!-- Desktop Mosaic Grid (>= 768px) -->
+      <div class="d-none d-md-block">
+        <div class="gallery-mosaic <%= galleryImages.length === 2 ? 'gallery-2' : (galleryImages.length === 3 ? 'gallery-3' : (galleryImages.length === 4 ? 'gallery-4' : '')) %>">
+          
+          <!-- Hero Main Photo -->
+          <div class="gallery-item gallery-hero" data-bs-toggle="modal" data-bs-target="#galleryModal" data-slide-to="0">
+            <img src="<%= galleryImages[0].url %>" alt="<%= listing.title %> - Photo 1">
+          </div>
+
+          <!-- Secondary Photos -->
+          <% for (let i = 1; i < Math.min(galleryImages.length, 5); i++) { %>
+            <div class="gallery-item" data-bs-toggle="modal" data-bs-target="#galleryModal" data-slide-to="<%= i %>">
+              <img src="<%= galleryImages[i].url %>" alt="<%= listing.title %> - Photo <%= i + 1 %>">
+            </div>
+          <% } %>
+
+          <!-- Pill Button to open fullscreen gallery -->
+          <button class="gallery-pill-btn" data-bs-toggle="modal" data-bs-target="#galleryModal">
+            <i class="fa-solid fa-grip me-2"></i>Show all <%= galleryImages.length %> photos
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Carousel (< 768px) -->
+      <div class="d-md-none position-relative">
+        <div id="mobileListingCarousel" class="carousel slide mobile-gallery-carousel" data-bs-ride="false">
+          <div class="carousel-inner">
+            <% galleryImages.forEach((img, idx) => { %>
+              <div class="carousel-item <%= idx === 0 ? 'active' : '' %>" data-bs-toggle="modal" data-bs-target="#galleryModal" data-slide-to="<%= idx %>">
+                <img src="<%= img.url %>" class="d-block w-100" alt="<%= listing.title %> - Photo <%= idx + 1 %>">
+              </div>
+            <% }); %>
+          </div>
+
+          <button class="carousel-control-prev" type="button" data-bs-target="#mobileListingCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#mobileListingCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+
+          <!-- Slide counter badge -->
+          <span class="carousel-counter-badge">
+            <span id="mobileSlideNum">1</span> / <%= galleryImages.length %>
+          </span>
+        </div>
+      </div>
+
+    <% } else { %>
+      <!-- Single Photo Layout -->
+      <div class="card listing-card show-card mb-0">
+        <img 
+          src="<%= galleryImages[0] ? galleryImages[0].url : (listing.image ? listing.image.url : '') %>" 
+          class="card-img-top show-img shadow-sm" 
+          alt="<%= listing.title %>"
+        >
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Left Main Column: Info, Host, Reviews, Map -->
   <div class="col-12 col-lg-8">
     
-    <!-- Image Card -->
     <div class="card listing-card show-card mb-3">
-      <img src="<%= listing.image.url %>" class="card-img-top show-img shadow-sm" alt="<%= listing.title %>">
-      
-      <div class="card-body px-0 pt-3">
+      <div class="card-body px-0 pt-0">
         <div class="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3">
           <div>
             <h5 class="fw-bold mb-1">
@@ -263,6 +329,61 @@
 
 </div>
 
+<!-- Fullscreen Gallery Lightbox Modal -->
+<% if (galleryImages.length > 1) { %>
+  <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        
+        <!-- Modal Header -->
+        <div class="modal-header border-0 pb-0 pt-3 px-4">
+          <div>
+            <h5 class="modal-title fw-bold" id="galleryModalLabel"><%= listing.title %></h5>
+            <small class="text-muted"><span id="modalActiveSlide">1</span> of <%= galleryImages.length %> photos</small>
+          </div>
+          <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <!-- Modal Body: Carousel -->
+        <div class="modal-body p-3 p-md-4">
+          <div id="modalGalleryCarousel" class="carousel slide" data-bs-ride="false">
+            <div class="carousel-inner text-center">
+              <% galleryImages.forEach((img, idx) => { %>
+                <div class="carousel-item <%= idx === 0 ? 'active' : '' %>">
+                  <img src="<%= img.url %>" class="d-block gallery-modal-img" alt="<%= listing.title %> photo <%= idx + 1 %>">
+                </div>
+              <% }); %>
+            </div>
+
+            <!-- Controls -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#modalGalleryCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon p-3 bg-dark rounded-circle" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#modalGalleryCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon p-3 bg-dark rounded-circle" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          </div>
+
+          <!-- Bottom Thumbnail Navigation Strip -->
+          <div class="gallery-thumb-strip mt-3 justify-content-center">
+            <% galleryImages.forEach((img, idx) => { %>
+              <img 
+                src="<%= img.url ? img.url.replace('/upload', '/upload/w_150') : '' %>" 
+                class="gallery-thumb <%= idx === 0 ? 'active' : '' %>" 
+                alt="Thumbnail <%= idx + 1 %>"
+                data-thumb-index="<%= idx %>"
+              >
+            <% }); %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<% } %>
+
 <script src="/js/map.js"></script>
 <script>
   // Wishlist AJAX Toggle
@@ -395,5 +516,59 @@
 
     // Initial calculation
     calculateBooking();
+  }
+
+  // Gallery Modal & Carousel Sync
+  const modalCarouselEl = document.getElementById("modalGalleryCarousel");
+  const modalActiveSlide = document.getElementById("modalActiveSlide");
+  const thumbs = document.querySelectorAll(".gallery-thumb");
+
+  if (modalCarouselEl) {
+    const carouselInstance = bootstrap.Carousel.getOrCreateInstance(modalCarouselEl);
+
+    // Open modal at specific slide when clicking mosaic items
+    document.querySelectorAll("[data-slide-to]").forEach((item) => {
+      item.addEventListener("click", () => {
+        const slideIndex = parseInt(item.getAttribute("data-slide-to"), 10);
+        carouselInstance.to(slideIndex);
+      });
+    });
+
+    // Update thumbnail active state and slide counter on slide change
+    modalCarouselEl.addEventListener("slid.bs.carousel", (e) => {
+      const activeIdx = e.to;
+      if (modalActiveSlide) {
+        modalActiveSlide.textContent = activeIdx + 1;
+      }
+      thumbs.forEach((t, i) => {
+        t.classList.toggle("active", i === activeIdx);
+      });
+    });
+
+    // Thumbnail click jumps to slide
+    thumbs.forEach((t) => {
+      t.addEventListener("click", () => {
+        const idx = parseInt(t.getAttribute("data-thumb-index"), 10);
+        carouselInstance.to(idx);
+      });
+    });
+
+    // Keyboard navigation (ArrowLeft & ArrowRight)
+    document.addEventListener("keydown", (e) => {
+      const modalEl = document.getElementById("galleryModal");
+      if (modalEl && modalEl.classList.contains("show")) {
+        if (e.key === "ArrowLeft") carouselInstance.prev();
+        if (e.key === "ArrowRight") carouselInstance.next();
+      }
+    });
+  }
+
+  // Mobile Carousel slide counter
+  const mobileCarouselEl = document.getElementById("mobileListingCarousel");
+  const mobileSlideNum = document.getElementById("mobileSlideNum");
+  if (mobileCarouselEl && mobileSlideNum) {
+    mobileCarouselEl.addEventListener("slid.bs.carousel", (e) => {
+      mobileSlideNum.textContent = e.to + 1;
+    });
   }
 </script>

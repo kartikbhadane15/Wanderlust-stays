@@ -8,11 +8,14 @@ const listingsController = require("../controllers/listings");
 const multer = require("multer");
 const { storage } = require("../cloudConfig");
 const upload = multer({ storage });
-
+const uploadListingImages = upload.fields([
+  { name: "listing[images]", maxCount: 10 },
+  { name: "listing[image][url]", maxCount: 1 },
+]);
 
 router.route("/")
   .get(wrapAsync(listingsController.index))
-  .post(isLoggedIn, upload.single("listing[image][url]"), wrapAsync(listingsController.createListing));
+  .post(isLoggedIn, uploadListingImages, wrapAsync(listingsController.createListing));
 
 // NEW (must come before dynamic routes like "/:id")
 router.get("/new", isLoggedIn, listingsController.renderNewForm);
@@ -22,7 +25,7 @@ router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingsController.render
 
 router.route("/:id")
   .get(wrapAsync(listingsController.showListing))
-  .put(isLoggedIn, isOwner, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.updateListing))
+  .put(isLoggedIn, isOwner, uploadListingImages, validateListing, wrapAsync(listingsController.updateListing))
   .delete(isLoggedIn, isOwner, wrapAsync(listingsController.deleteListing));
 
 // WISHLIST TOGGLE

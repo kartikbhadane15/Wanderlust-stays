@@ -12,6 +12,13 @@ const listingSchema = new Schema(
       filename: String,
     },
 
+    images: [
+      {
+        url: String,
+        filename: String,
+      },
+    ],
+
     price: Number,
     location: String,
     country: String,
@@ -56,8 +63,22 @@ const listingSchema = new Schema(
       ref: "User",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+listingSchema.virtual("allImages").get(function () {
+  if (this.images && this.images.length > 0) {
+    return this.images;
+  }
+  if (this.image && this.image.url) {
+    return [this.image];
+  }
+  return [];
+});
 
 listingSchema.post("findOneAndDelete", async function (listing) {
   if (listing) {
