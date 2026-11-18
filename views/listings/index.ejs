@@ -22,22 +22,23 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1.5rem;
-        margin-top: 1rem;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.75rem;
+        margin-bottom: 2rem;
+        flex-wrap: nowrap;
+        width: 100%;
     }
 
     #filters {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.15rem;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* Firefox */
         flex: 1 1 auto;
         min-width: 0;
-        padding: 0.5rem 0;
+        padding: 0.25rem 0;
     }
 
     #filters::-webkit-scrollbar {
@@ -45,6 +46,10 @@
     }
 
     .filter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
         opacity: 0.65;
         transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
@@ -53,12 +58,14 @@
         text-decoration: none;
         color: inherit;
         border-bottom: 2px solid transparent;
-        padding-bottom: 0.25rem;
+        padding-bottom: 0.3rem;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
     }
 
     .filter:hover {
         opacity: 1;
-        transform: translateY(-2px);
+        transform: translateY(-1px);
         color: #fe424d;
     }
 
@@ -73,58 +80,94 @@
         color: #fe424d;
     }
 
+    .filter .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
     .filter i {
-        font-size: 1.35rem;
-        margin-bottom: 0.35rem;
-        display: block;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .filter p {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 500;
         margin: 0;
         white-space: nowrap;
+        text-align: center;
+        width: 100%;
     }
 
+    /* Compact Tax Toggle Pill in the same row */
     .tax-toggle {
-        border: 1px solid #dee2e6;
-        border-radius: 2rem;
-        padding: 0.65rem 1.25rem;
+        border: 1px solid #b0b0b0;
+        border-radius: 0.75rem;
+        padding: 0.45rem 0.85rem;
         display: inline-flex;
         align-items: center;
+        justify-content: space-between;
         flex: 0 0 auto;
         background-color: #fff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .tax-toggle .form-check-label {
-        font-size: 0.85rem;
-        font-weight: 500;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .tax-info {
-        display: none;
+    .tax-toggle:hover {
+        border-color: #222222;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
-    @media (max-width: 768px) {
+    .tax-toggle-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #222222;
+        margin: 0;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .tax-toggle .form-check-input {
+        cursor: pointer;
+        width: 2.2rem;
+        height: 1.2rem;
+        margin: 0;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tax-toggle .form-check-input:checked {
+        background-color: #222222;
+        border-color: #222222;
+    }
+
+    .tax-toggle .form-check-input:focus {
+        box-shadow: 0 0 0 0.15rem rgba(0, 0, 0, 0.1);
+        border-color: #222222;
+    }
+
+    @media (max-width: 640px) {
         .filters-wrapper {
             flex-direction: column;
             align-items: stretch;
-            gap: 1rem;
-        }
-
-        #filters {
-            width: 100%;
+            gap: 0.75rem;
         }
 
         .tax-toggle {
             width: 100%;
-            justify-content: center;
+            justify-content: space-between;
         }
     }
 </style>
 
+<!-- Filters and Tax Switch Container -->
 <div class="filters-wrapper">
     <div id="filters">
         <% for(let cat of categoriesList) { %>
@@ -141,20 +184,22 @@
                }
             %>
             <a href="<%= targetUrl %>" class="filter <%= isSelected ? 'active-filter' : '' %>">
-                <div><i class="<%= cat.icon %>"></i></div>
+                <div class="icon-container"><i class="<%= cat.icon %>"></i></div>
                 <p><%= cat.label %></p>
             </a>
         <% } %>
     </div>
 
-    <div class="tax-toggle">
-        <div class="form-check form-switch form-check-reverse m-0 d-flex align-items-center gap-2">
-            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-            <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+    <!-- Display total after taxes toggle -->
+    <div class="tax-toggle" id="taxToggleBox">
+        <label class="tax-toggle-label me-3" for="switchCheckDefault">Display total after taxes</label>
+        <div class="form-check form-switch m-0 p-0 d-inline-flex align-items-center">
+            <input class="form-check-input m-0" type="checkbox" role="switch" id="switchCheckDefault">
         </div>
     </div>
 </div>
 
+<!-- Listings Container: Maximum 3 listings per row on desktop -->
 <% if (allListings.length === 0) { %>
     <div class="col-12 text-center py-5 my-4">
         <div class="mb-3">
@@ -175,34 +220,63 @@
         </a>
     </div>
 <% } else { %>
-    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
         <% for(let listing of allListings) { %>
-        <div class="col">
-            <a href="/listings/<%= listing._id %>" class="listing-link">
-                <div class="card h-100 listing-card">
-                    <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
-                    <div class="card-img-overlay"></div>
-                    <div class="card-body">
-                        <p class="card-text">
-                            <b><%= listing.title %></b><br>
-                            <span class="text-muted"><%= listing.location %>, <%= listing.country %></span><br>
-                            <span class="fw-semibold">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> <span class="text-muted">/ night</span>
-                            <i class="tax-info text-muted">&nbsp; &nbsp;+18% GST</i>
-                        </p>
+            <% 
+               const basePrice = listing.price || 0;
+               const taxPrice = Math.round(basePrice * 1.18);
+            %>
+            <div class="col">
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <div class="card h-100 listing-card">
+                        <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <b class="d-block text-truncate" style="font-size: 1.05rem;"><%= listing.title %></b>
+                                <span class="text-muted d-block mb-1"><%= listing.location %>, <%= listing.country %></span>
+                                
+                                <!-- Normal Price -->
+                                <span class="base-price">
+                                    <span class="fw-semibold fs-6">&#8377; <%= basePrice ? basePrice.toLocaleString("en-IN") : "N/A" %></span> 
+                                    <span class="text-muted">/ night</span>
+                                </span>
+                                
+                                <!-- Price with 18% GST -->
+                                <span class="tax-price d-none">
+                                    <span class="fw-semibold fs-6 text-dark">&#8377; <%= taxPrice ? taxPrice.toLocaleString("en-IN") : "N/A" %></span> 
+                                    <span class="text-muted">total after taxes</span>
+                                    <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.7rem;">incl. 18% GST</span>
+                                </span>
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
         <% } %>
     </div>
 <% } %>
 
 <script>
     const taxSwitch = document.getElementById("switchCheckDefault");
-    taxSwitch.addEventListener("click", () => {
-        const taxInfo = document.getElementsByClassName("tax-info");
-        for(let info of taxInfo) {
-            info.style.display = taxSwitch.checked ? "inline" : "none";
+    const taxToggleBox = document.getElementById("taxToggleBox");
+
+    function updateTaxPrices() {
+        const basePrices = document.querySelectorAll(".base-price");
+        const taxPrices = document.querySelectorAll(".tax-price");
+        const isChecked = taxSwitch.checked;
+
+        basePrices.forEach(el => el.classList.toggle("d-none", isChecked));
+        taxPrices.forEach(el => el.classList.toggle("d-none", !isChecked));
+    }
+
+    taxSwitch.addEventListener("change", updateTaxPrices);
+
+    // Clicking anywhere on the pill container toggles the switch
+    taxToggleBox.addEventListener("click", (e) => {
+        if (e.target !== taxSwitch) {
+            taxSwitch.checked = !taxSwitch.checked;
+            updateTaxPrices();
         }
     });
 </script>
