@@ -50,8 +50,25 @@ const bookingSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["confirmed", "cancelled", "completed"],
+      enum: ["confirmed", "cancelled", "completed", "pending"],
       default: "confirmed",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "refunded"],
+      default: "paid",
+    },
+    paymentMethod: {
+      type: String,
+      default: "Credit/Debit Card",
+    },
+    transactionId: {
+      type: String,
+      default: "",
+    },
+    paidAt: {
+      type: Date,
+      default: Date.now,
     },
     bookingCode: {
       type: String,

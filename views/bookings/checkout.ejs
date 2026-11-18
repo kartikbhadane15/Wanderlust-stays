@@ -1,0 +1,278 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row mt-4 mb-5">
+  <div class="col-12 col-lg-10 offset-lg-1">
+    
+    <!-- Header with Back Link -->
+    <div class="d-flex align-items-center mb-4">
+      <a href="/listings/<%= booking.listing ? booking.listing._id : '' %>" class="btn btn-outline-dark btn-sm rounded-circle me-3" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
+      <div>
+        <h2 class="fw-bold mb-0">Confirm and pay</h2>
+        <small class="text-muted">Reservation reference: <span class="font-monospace"><%= booking.bookingCode %></span></small>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- Left Column: Payment Details & Selection -->
+      <div class="col-12 col-md-7">
+        
+        <!-- Trip Details Brief -->
+        <div class="checkout-card mb-4">
+          <h5 class="fw-bold mb-3">Your trip</h5>
+          
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <span class="fw-semibold d-block">Dates</span>
+              <small class="text-muted">
+                <%= new Date(booking.checkIn).toLocaleDateString("en-US", { month: "short", day: "numeric" }) %>
+                &ndash;
+                <%= new Date(booking.checkOut).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                (<%= booking.totalNights %> night<%= booking.totalNights > 1 ? 's' : '' %>)
+              </small>
+            </div>
+            <span class="badge bg-light text-secondary border">Confirmed dates</span>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center py-2">
+            <div>
+              <span class="fw-semibold d-block">Guests</span>
+              <small class="text-muted"><%= booking.guests %> guest<%= booking.guests > 1 ? 's' : '' %></small>
+            </div>
+            <span class="badge bg-light text-secondary border">Standard stay</span>
+          </div>
+        </div>
+
+        <!-- Payment Options (Razorpay / Stripe Mock) -->
+        <div class="checkout-card mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Pay with</h5>
+            <span class="gateway-badge">
+              <i class="fa-solid fa-bolt"></i> Razorpay &amp; Stripe Verified
+            </span>
+          </div>
+
+          <form action="/bookings/<%= booking._id %>/pay" method="POST" id="paymentForm">
+            
+            <!-- Payment Method Tabs -->
+            <div class="d-flex gap-2 mb-3">
+              <div class="flex-grow-1">
+                <input type="radio" class="btn-check" name="paymentMethod" id="methodCard" value="Credit/Debit Card" checked>
+                <label class="btn btn-outline-dark w-100 py-2 small fw-semibold rounded-3 text-center" for="methodCard">
+                  <i class="fa-regular fa-credit-card me-1"></i> Card
+                </label>
+              </div>
+              <div class="flex-grow-1">
+                <input type="radio" class="btn-check" name="paymentMethod" id="methodUPI" value="UPI / QR">
+                <label class="btn btn-outline-dark w-100 py-2 small fw-semibold rounded-3 text-center" for="methodUPI">
+                  <i class="fa-solid fa-mobile-screen-button me-1"></i> UPI
+                </label>
+              </div>
+              <div class="flex-grow-1">
+                <input type="radio" class="btn-check" name="paymentMethod" id="methodNetBanking" value="Net Banking">
+                <label class="btn btn-outline-dark w-100 py-2 small fw-semibold rounded-3 text-center" for="methodNetBanking">
+                  <i class="fa-solid fa-building-columns me-1"></i> Net Banking
+                </label>
+              </div>
+            </div>
+
+            <!-- Card Payment Pane -->
+            <div id="cardSection" class="p-3 bg-light rounded-3 border mb-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small text-muted fw-semibold">Card Details</span>
+                <div class="d-flex gap-1 text-secondary">
+                  <i class="fa-brands fa-cc-visa fs-5"></i>
+                  <i class="fa-brands fa-cc-mastercard fs-5"></i>
+                  <i class="fa-brands fa-cc-amex fs-5"></i>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="cardNumber" class="form-label small text-muted mb-1">Card Number</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white"><i class="fa-solid fa-credit-card text-muted"></i></span>
+                  <input type="text" class="form-control" id="cardNumber" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242" maxlength="19" required>
+                </div>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label for="cardExpiry" class="form-label small text-muted mb-1">Expiration</label>
+                  <input type="text" class="form-control form-control-sm" id="cardExpiry" placeholder="MM / YY" value="12/28" maxlength="5" required>
+                </div>
+                <div class="col-6">
+                  <label for="cardCvv" class="form-label small text-muted mb-1">CVV</label>
+                  <input type="password" class="form-control form-control-sm" id="cardCvv" placeholder="123" value="123" maxlength="4" required>
+                </div>
+              </div>
+
+              <div>
+                <label for="cardName" class="form-label small text-muted mb-1">Cardholder Name</label>
+                <input type="text" class="form-control form-control-sm" id="cardName" placeholder="Full name on card" value="<%= booking.user ? booking.user.username : 'Wanderlust Guest' %>" required>
+              </div>
+            </div>
+
+            <!-- UPI Payment Pane -->
+            <div id="upiSection" class="p-3 bg-light rounded-3 border mb-3 d-none">
+              <span class="small text-muted fw-semibold d-block mb-2">Pay via UPI</span>
+              <div class="input-group input-group-sm mb-2">
+                <input type="text" class="form-control" placeholder="username@upi / gpay / paytm" value="guest@okhdfcbank">
+                <button class="btn btn-outline-secondary" type="button">Verify</button>
+              </div>
+              <small class="text-muted d-block">A payment request will be sent to your UPI app.</small>
+            </div>
+
+            <!-- Net Banking Pane -->
+            <div id="netBankingSection" class="p-3 bg-light rounded-3 border mb-3 d-none">
+              <span class="small text-muted fw-semibold d-block mb-2">Select Your Bank</span>
+              <select class="form-select form-select-sm">
+                <option selected>HDFC Bank</option>
+                <option>ICICI Bank</option>
+                <option>State Bank of India (SBI)</option>
+                <option>Axis Bank</option>
+                <option>Kotak Mahindra Bank</option>
+              </select>
+            </div>
+
+            <!-- Security Trust Reassurance -->
+            <div class="security-badge mb-3">
+              <i class="fa-solid fa-lock text-success"></i>
+              <span>Your payment is secured with 256-bit SSL encryption.</span>
+            </div>
+
+            <!-- Pay Button -->
+            <button type="submit" id="paySubmitBtn" class="btn btn-danger w-100 py-3 fw-bold rounded-3 fs-6" style="background-color: #fe424d; border-color: #fe424d;">
+              <span id="payBtnText">Pay &#8377; <%= booking.totalPrice.toLocaleString("en-IN") %></span>
+              <span id="payBtnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+            </button>
+
+            <small class="text-muted text-center d-block mt-2">
+              By selecting the button, you agree to the Wanderlust Terms and Cancellation Policy.
+            </small>
+
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sticky Trip Summary -->
+      <div class="col-12 col-md-5">
+        <div class="checkout-card sticky-top" style="top: 90px;">
+          
+          <% if (booking.listing) { %>
+            <div class="d-flex gap-3 align-items-center mb-3 pb-3 border-bottom">
+              <img 
+                src="<%= booking.listing.image ? booking.listing.image.url : '' %>" 
+                alt="<%= booking.listing.title %>" 
+                class="rounded-3 shadow-sm"
+                style="width: 80px; height: 80px; object-fit: cover;"
+              />
+              <div class="overflow-hidden">
+                <h6 class="fw-bold mb-1 text-truncate"><%= booking.listing.title %></h6>
+                <small class="text-muted d-block text-truncate">
+                  <i class="fa-solid fa-location-dot me-1 text-danger"></i>
+                  <%= booking.listing.location %>, <%= booking.listing.country %>
+                </small>
+                <small class="text-muted">
+                  <i class="fa-solid fa-star text-danger"></i> 4.9 &bull; Entire stay
+                </small>
+              </div>
+            </div>
+          <% } %>
+
+          <h6 class="fw-bold mb-3">Price Details</h6>
+
+          <div class="d-flex justify-content-between py-1 text-muted small">
+            <span>&#8377; <%= booking.pricePerNight.toLocaleString("en-IN") %> &times; <%= booking.totalNights %> night<%= booking.totalNights > 1 ? 's' : '' %></span>
+            <span class="text-dark fw-semibold">&#8377; <%= booking.basePrice.toLocaleString("en-IN") %></span>
+          </div>
+
+          <div class="d-flex justify-content-between py-1 text-muted small">
+            <span>GST &amp; Service Fee (18%)</span>
+            <span class="text-dark fw-semibold">&#8377; <%= booking.gst.toLocaleString("en-IN") %></span>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="d-flex justify-content-between py-2 fw-bold fs-6">
+            <span>Total (INR)</span>
+            <span class="text-danger">&#8377; <%= booking.totalPrice.toLocaleString("en-IN") %></span>
+          </div>
+
+          <div class="mt-3 p-3 bg-light rounded-3 small text-muted">
+            <div class="d-flex align-items-center gap-2 mb-1 text-dark fw-semibold">
+              <i class="fa-solid fa-shield-halved text-success"></i> Free Cancellation
+            </div>
+            Full refund available up to 48 hours before check-in.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Payment Method Switching
+  const methodCard = document.getElementById("methodCard");
+  const methodUPI = document.getElementById("methodUPI");
+  const methodNetBanking = document.getElementById("methodNetBanking");
+
+  const cardSection = document.getElementById("cardSection");
+  const upiSection = document.getElementById("upiSection");
+  const netBankingSection = document.getElementById("netBankingSection");
+
+  function switchPaymentMethod() {
+    if (cardSection && upiSection && netBankingSection) {
+      cardSection.classList.toggle("d-none", !methodCard.checked);
+      upiSection.classList.toggle("d-none", !methodUPI.checked);
+      netBankingSection.classList.toggle("d-none", !methodNetBanking.checked);
+    }
+  }
+
+  [methodCard, methodUPI, methodNetBanking].forEach(radio => {
+    if (radio) radio.addEventListener("change", switchPaymentMethod);
+  });
+
+  // Card Number Formatting (4242 4242 4242 4242)
+  const cardNumber = document.getElementById("cardNumber");
+  if (cardNumber) {
+    cardNumber.addEventListener("input", function(e) {
+      let val = this.value.replace(/\D/g, "").substring(0, 16);
+      val = val.match(/.{1,4}/g)?.join(" ") || val;
+      this.value = val;
+    });
+  }
+
+  // Card Expiry Formatting (MM/YY)
+  const cardExpiry = document.getElementById("cardExpiry");
+  if (cardExpiry) {
+    cardExpiry.addEventListener("input", function(e) {
+      let val = this.value.replace(/\D/g, "").substring(0, 4);
+      if (val.length >= 2) {
+        val = val.substring(0, 2) + "/" + val.substring(2);
+      }
+      this.value = val;
+    });
+  }
+
+  // Submit Simulation
+  const paymentForm = document.getElementById("paymentForm");
+  const paySubmitBtn = document.getElementById("paySubmitBtn");
+  const payBtnText = document.getElementById("payBtnText");
+  const payBtnSpinner = document.getElementById("payBtnSpinner");
+
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", function() {
+      if (paySubmitBtn) {
+        paySubmitBtn.disabled = true;
+        if (payBtnText) payBtnText.textContent = "Processing Payment...";
+        if (payBtnSpinner) payBtnSpinner.classList.remove("d-none");
+      }
+    });
+  }
+</script>

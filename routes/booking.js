@@ -17,6 +17,12 @@ router.get("/bookings", isLoggedIn, wrapAsync(bookingController.renderUserBookin
 // View single reservation confirmation / receipt
 router.get("/bookings/:id", isLoggedIn, wrapAsync(bookingController.renderBooking));
 
+// Checkout payment page
+router.get("/bookings/:id/checkout", isLoggedIn, wrapAsync(bookingController.renderCheckout));
+
+// Process mock payment
+router.post("/bookings/:id/pay", isLoggedIn, wrapAsync(bookingController.processPayment));
+
 // Cancel a reservation
 router.post(
   "/bookings/:id/cancel",

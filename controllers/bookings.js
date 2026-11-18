@@ -61,15 +61,70 @@ module.exports.createBooking = async (req, res) => {
     basePrice,
     gst,
     totalPrice,
-    status: "confirmed",
+    status: "pending",
+    paymentStatus: "pending",
     bookingCode,
     specialRequests: specialRequests ? specialRequests.trim() : "",
   });
 
   await newBooking.save();
 
-  req.flash("success", `Reservation confirmed! Booking Reference: ${bookingCode}`);
-  res.redirect(`/bookings/${newBooking._id}`);
+  res.redirect(`/bookings/${newBooking._id}/checkout`);
+};
+
+module.exports.renderCheckout = async (req, res) => {
+  const { id } = req.params;
+  const booking = await Booking.findById(id)
+    .populate("listing")
+    .populate("user");
+
+  if (!booking) {
+    req.flash("error", "Reservation not found!");
+    return res.redirect("/listings");
+  }
+
+  if (!booking.user._id.equals(req.user._id)) {
+    req.flash("error", "Unauthorized access to checkout!");
+    return res.redirect("/listings");
+  }
+
+  if (booking.paymentStatus === "paid") {
+    return res.redirect(`/bookings/${booking._id}`);
+  }
+
+  res.render("bookings/checkout.ejs", { booking });
+};
+
+module.exports.processPayment = async (req, res) => {
+  const { id } = req.params;
+  const booking = await Booking.findById(id).populate("listing");
+
+  if (!booking) {
+    req.flash("error", "Reservation not found!");
+    return res.redirect("/listings");
+  }
+
+  if (!booking.user._id.equals(req.user._id)) {
+    req.flash("error", "Unauthorized access!");
+    return res.redirect("/listings");
+  }
+
+  const { paymentMethod } = req.body;
+  const mockTxnId = "pay_rzp_" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  booking.paymentStatus = "paid";
+  booking.status = "confirmed";
+  booking.paymentMethod = paymentMethod || "Credit/Debit Card";
+  booking.transactionId = mockTxnId;
+  booking.paidAt = new Date();
+
+  await booking.save();
+
+  req.flash(
+    "success",
+    `Payment of ₹${booking.totalPrice.toLocaleString("en-IN")} successful! Reference: ${booking.bookingCode}`
+  );
+  res.redirect(`/bookings/${booking._id}`);
 };
 
 module.exports.renderBooking = async (req, res) => {
@@ -145,8 +200,13 @@ module.exports.cancelBooking = async (req, res) => {
   }
 
   booking.status = "cancelled";
+  let refundMsg = "";
+  if (booking.paymentStatus === "paid") {
+    booking.paymentStatus = "refunded";
+    refundMsg = ` Refund of ₹${booking.totalPrice.toLocaleString("en-IN")} has been initiated to your original payment method.`;
+  }
   await booking.save();
 
-  req.flash("success", `Reservation ${booking.bookingCode} has been cancelled.`);
+  req.flash("success", `Reservation ${booking.bookingCode} has been cancelled.${refundMsg}`);
   res.redirect(`/bookings/${booking._id}`);
 };

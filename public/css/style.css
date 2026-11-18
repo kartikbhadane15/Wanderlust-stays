@@ -734,6 +734,52 @@ p {
 /* ==========================================================================
    5. BOOKINGS & TRIP CONFIRMATION
    ========================================================================== */
+.checkout-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.payment-method-card {
+  border: 1.5px solid #e0e0e0;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.payment-method-card:hover {
+  border-color: #222222;
+}
+
+.payment-method-card.active {
+  border-color: #fe424d;
+  background-color: #fff9f9;
+}
+
+.gateway-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.5rem;
+  background-color: #f0f4ff;
+  color: #1a56db;
+}
+
+.security-badge {
+  font-size: 0.8rem;
+  color: #717171;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .trip-card {
   border-radius: 1rem;
   overflow: hidden;
