@@ -5,21 +5,29 @@ const MAP_TOKEN = process.env.MAP_TOKEN;
 
 /* ================= INDEX ================= */
 module.exports.index = async (req, res) => {
-  const { q } = req.query;
-  let allListings;
+  const { q, category } = req.query;
+  const filter = {};
 
-  if (q) {
-    allListings = await Listing.find({
-      $or: [
-        { title: { $regex: q, $options: "i" } },
-        { location: { $regex: q, $options: "i" } },
-      ],
-    });
-  } else {
-    allListings = await Listing.find({});
+  if (category && category.trim() !== "" && category.toLowerCase() !== "all") {
+    filter.category = category.trim().toLowerCase();
   }
 
-  res.render("listings/index.ejs", { allListings, q });
+  if (q && q.trim() !== "") {
+    const searchRegex = { $regex: q.trim(), $options: "i" };
+    filter.$or = [
+      { title: searchRegex },
+      { location: searchRegex },
+      { country: searchRegex },
+    ];
+  }
+
+  const allListings = await Listing.find(filter);
+
+  res.render("listings/index.ejs", {
+    allListings,
+    q: q || "",
+    category: category || "",
+  });
 };
 
 
