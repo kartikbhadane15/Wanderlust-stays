@@ -49,12 +49,18 @@ module.exports.logout =  (req, res, next) => {
 };
 
 module.exports.renderWishlist = async (req, res) => {
-    const user = await User.findById(req.user._id).populate("wishlist");
+    const user = await User.findById(req.user._id).populate({
+        path: "wishlist",
+        populate: { path: "reviews" }
+    });
     res.render("users/wishlist.ejs", { wishlist: user.wishlist || [] });
 };
 
 module.exports.renderProfile = async (req, res) => {
-    const user = await User.findById(req.user._id).populate("wishlist");
+    const user = await User.findById(req.user._id).populate({
+        path: "wishlist",
+        populate: { path: "reviews" }
+    });
     const myListings = await Listing.find({ owner: req.user._id }).populate("reviews");
     const myReviews = await Review.find({ author: req.user._id });
 

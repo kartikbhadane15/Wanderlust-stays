@@ -80,6 +80,25 @@ listingSchema.virtual("allImages").get(function () {
   return [];
 });
 
+listingSchema.virtual("avgRating").get(function () {
+  if (!this.reviews || this.reviews.length === 0) return 0;
+  let sum = 0;
+  let count = 0;
+  for (let r of this.reviews) {
+    const val = (r && typeof r.rating === "number") ? r.rating : (typeof r === "number" ? r : null);
+    if (val !== null) {
+      sum += val;
+      count++;
+    }
+  }
+  if (count === 0) return 0;
+  return Number((sum / count).toFixed(1));
+});
+
+listingSchema.virtual("isGuestFavorite").get(function () {
+  return this.avgRating >= 4.5 && this.reviews && this.reviews.length >= 2;
+});
+
 listingSchema.post("findOneAndDelete", async function (listing) {
   if (listing) {
     await Review.deleteMany({ _id: { $in: listing.reviews } });

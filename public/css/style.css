@@ -358,6 +358,50 @@ p {
   filter: drop-shadow(0 2px 4px rgba(254, 66, 77, 0.5));
 }
 
+/* Card Badges (Guest Favorite & Category) */
+.card-badge {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  z-index: 8;
+  letter-spacing: 0.2px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.guest-favorite-badge {
+  background: rgba(255, 255, 255, 0.96);
+  color: #222222;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border-radius: 1rem;
+  padding: 0.3rem 0.7rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.category-pill-badge {
+  background: rgba(255, 255, 255, 0.92);
+  color: #333333;
+  font-weight: 600;
+  font-size: 0.7rem;
+  border-radius: 1rem;
+  padding: 0.25rem 0.6rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Rating */
+.card-rating {
+  font-size: 0.88rem;
+  line-height: 1;
+}
+
+.card-rating i {
+  color: #fe424d;
+  font-size: 0.82rem;
+  margin-right: 0.2rem;
+}
+
 /* ==========================================================================
    4. LISTING DETAILS (SHOW PAGE) & RESERVATION WIDGET
    ========================================================================== */

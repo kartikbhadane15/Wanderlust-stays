@@ -39,16 +39,48 @@
                             <i class="fa-solid fa-heart text-danger"></i>
                         </button>
 
+                        <% 
+                           let reviewCount = (listing.reviews && listing.reviews.length) || 0;
+                           let avgRating = 0;
+                           if (reviewCount > 0) {
+                             let sum = 0, count = 0;
+                             for (let r of listing.reviews) {
+                               const ratingVal = (r && typeof r.rating === 'number') ? r.rating : (typeof r === 'number' ? r : null);
+                               if (ratingVal !== null) {
+                                 sum += ratingVal;
+                                 count++;
+                               }
+                             }
+                             if (count > 0) avgRating = (sum / count).toFixed(1);
+                           }
+                           const isGuestFavorite = (avgRating >= 4.5 && reviewCount >= 2);
+                        %>
                         <a href="/listings/<%= listing._id %>" class="listing-link">
-                            <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
+                            <div class="position-relative">
+                                <img src="<%= listing.image ? listing.image.url : '' %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
+                                <% if (isGuestFavorite) { %>
+                                    <span class="card-badge guest-favorite-badge">Guest favorite</span>
+                                <% } else if (listing.category && listing.category !== "trending") { %>
+                                    <span class="card-badge category-pill-badge text-capitalize"><%= listing.category %></span>
+                                <% } %>
+                            </div>
                             <div class="card-img-overlay"></div>
                             <div class="card-body">
-                                <p class="card-text">
-                                    <b class="d-block text-truncate" style="font-size: 1.05rem;"><%= listing.title %></b>
-                                    <span class="text-muted d-block mb-1"><%= listing.location %>, <%= listing.country %></span>
-                                    <span class="fw-semibold fs-6">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> 
-                                    <span class="text-muted">/ night</span>
-                                </p>
+                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                    <b class="text-truncate flex-grow-1 me-2" style="font-size: 1.02rem;"><%= listing.title %></b>
+                                    <span class="card-rating d-inline-flex align-items-center flex-shrink-0">
+                                        <i class="fa-solid fa-star me-1 text-danger"></i>
+                                        <% if (avgRating > 0) { %>
+                                            <span class="fw-semibold text-dark"><%= avgRating %></span>
+                                            <span class="text-muted ms-1 small">(<%= reviewCount %>)</span>
+                                        <% } else { %>
+                                            <span class="text-muted small">New</span>
+                                        <% } %>
+                                    </span>
+                                </div>
+                                <span class="text-muted d-block small mb-1"><%= listing.location %>, <%= listing.country %></span>
+                                <span class="fw-semibold fs-6">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> 
+                                <span class="text-muted small">/ night</span>
                             </div>
                         </a>
                     </div>

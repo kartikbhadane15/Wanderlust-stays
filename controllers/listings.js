@@ -22,7 +22,7 @@ module.exports.index = async (req, res) => {
     ];
   }
 
-  const allListings = await Listing.find(filter);
+  const allListings = await Listing.find(filter).populate("reviews");
 
   res.render("listings/index.ejs", {
     allListings,
