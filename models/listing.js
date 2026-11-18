@@ -51,6 +51,22 @@ const listingSchema = new Schema(
       ],
     },
 
+    amenities: [
+      {
+        type: String,
+        enum: [
+          "wifi",
+          "pool",
+          "ac",
+          "parking",
+          "kitchen",
+          "tv",
+          "workspace",
+          "pets",
+        ],
+      },
+    ],
+
     reviews: [
       {
         type: Schema.Types.ObjectId,

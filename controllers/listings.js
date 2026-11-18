@@ -6,7 +6,7 @@ const MAP_TOKEN = process.env.MAP_TOKEN;
 
 /* ================= INDEX ================= */
 module.exports.index = async (req, res) => {
-  const { q, category } = req.query;
+  const { q, category, minPrice, maxPrice, amenities, sort } = req.query;
   const filter = {};
 
   if (category && category.trim() !== "" && category.toLowerCase() !== "all") {
@@ -22,12 +22,61 @@ module.exports.index = async (req, res) => {
     ];
   }
 
-  const allListings = await Listing.find(filter).populate("reviews");
+  // Price range filtering
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice && !isNaN(minPrice) && Number(minPrice) > 0) {
+      filter.price.$gte = Number(minPrice);
+    }
+    if (maxPrice && !isNaN(maxPrice) && Number(maxPrice) > 0) {
+      filter.price.$lte = Number(maxPrice);
+    }
+  }
+
+  // Amenities filtering
+  let selectedAmenities = [];
+  if (amenities) {
+    if (Array.isArray(amenities)) {
+      selectedAmenities = amenities;
+    } else if (typeof amenities === "string") {
+      selectedAmenities = amenities.split(",").map((a) => a.trim()).filter(Boolean);
+    }
+    if (selectedAmenities.length > 0) {
+      filter.amenities = { $all: selectedAmenities };
+    }
+  }
+
+  let queryBuilder = Listing.find(filter).populate("reviews");
+
+  if (sort === "price_asc") {
+    queryBuilder = queryBuilder.sort({ price: 1 });
+  } else if (sort === "price_desc") {
+    queryBuilder = queryBuilder.sort({ price: -1 });
+  } else if (sort === "newest") {
+    queryBuilder = queryBuilder.sort({ createdAt: -1 });
+  }
+
+  let allListings = await queryBuilder;
+
+  if (sort === "rating_desc") {
+    allListings = allListings.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+  }
+
+  let activeFilterCount = 0;
+  if (minPrice) activeFilterCount++;
+  if (maxPrice) activeFilterCount++;
+  if (selectedAmenities.length > 0) activeFilterCount += selectedAmenities.length;
+  if (sort && sort !== "recommended") activeFilterCount++;
 
   res.render("listings/index.ejs", {
     allListings,
     q: q || "",
     category: category || "",
+    minPrice: minPrice || "",
+    maxPrice: maxPrice || "",
+    selectedAmenities,
+    sort: sort || "recommended",
+    activeFilterCount,
   });
 };
 
@@ -73,6 +122,9 @@ module.exports.createListing = async (req, res, next) => {
       return res.redirect("/listings/new");
     }
 
+    if (req.body.listing && req.body.listing.amenities) {
+      req.body.listing.amenities = [].concat(req.body.listing.amenities);
+    }
     const listing = new Listing(req.body.listing);
     listing.owner = req.user._id;
 
@@ -137,6 +189,11 @@ module.exports.updateListing = async (req, res, next) => {
     }
 
     if (req.body.listing) {
+      if (req.body.listing.amenities) {
+        req.body.listing.amenities = [].concat(req.body.listing.amenities);
+      } else {
+        listing.amenities = [];
+      }
       Object.assign(listing, req.body.listing);
     }
 

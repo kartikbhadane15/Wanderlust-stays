@@ -106,7 +106,36 @@
         <div class="invalid-feedback">Location is required.</div>
       </div>
 
-      <button class="btn btn-dark edit-btn mt-3 px-4 py-2">Update Listing</button>
+      <!-- Amenities Checkboxes -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Amenities Offered</label>
+        <% 
+           const currentAmenities = (listing.amenities && listing.amenities.length > 0) ? listing.amenities : [];
+           const editAmenitiesList = [
+             { id: "wifi", label: "WiFi", icon: "fa-solid fa-wifi" },
+             { id: "pool", label: "Pool", icon: "fa-solid fa-person-swimming" },
+             { id: "ac", label: "AC", icon: "fa-solid fa-snowflake" },
+             { id: "parking", label: "Parking", icon: "fa-solid fa-square-parking" },
+             { id: "kitchen", label: "Kitchen", icon: "fa-solid fa-kitchen-set" },
+             { id: "tv", label: "TV", icon: "fa-solid fa-tv" },
+             { id: "workspace", label: "Workspace", icon: "fa-solid fa-laptop" },
+             { id: "pets", label: "Pet Friendly", icon: "fa-solid fa-paw" },
+           ];
+        %>
+        <div class="row row-cols-2 row-cols-md-4 g-2">
+          <% for(let item of editAmenitiesList) { %>
+            <div class="col">
+              <label class="amenity-checkbox-card" for="edit-<%= item.id %>">
+                <input type="checkbox" id="edit-<%= item.id %>" name="listing[amenities][]" value="<%= item.id %>" <%= currentAmenities.includes(item.id) ? 'checked' : '' %>>
+                <i class="<%= item.icon %>"></i>
+                <span class="amenity-label"><%= item.label %></span>
+              </label>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <button class="btn btn-dark edit-btn mt-2 px-4 py-2">Update Listing</button>
     </form>
   </div>
 </div>

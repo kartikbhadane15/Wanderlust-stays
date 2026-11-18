@@ -1,131 +1,101 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="mt-4 mb-5">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">
-                <i class="fa-solid fa-heart text-danger me-2"></i>My Wishlist
-            </h2>
-            <p class="text-muted mb-0">Your saved dream stays and favorites</p>
+    <div class="mt-4 mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">
+                    <i class="fa-solid fa-heart text-danger me-2"></i>My Wishlist
+                </h2>
+                <p class="text-muted mb-0">Your saved dream stays and favorites</p>
+            </div>
+            <a href="/listings" class="btn btn-outline-dark rounded-pill px-3 py-2">
+                <i class="fa-solid fa-compass me-1"></i> Explore more
+            </a>
         </div>
-        <a href="/listings" class="btn btn-outline-dark rounded-pill px-3 py-2">
-            <i class="fa-solid fa-compass me-1"></i> Explore more
-        </a>
+
+        <% if (!wishlist || wishlist.length===0) { %>
+            <div class="text-center py-5 my-5">
+                <div class="mb-3">
+                    <i class="fa-regular fa-heart text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-2">Your wishlist is empty</h3>
+                <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto;">
+                    As you search, tap the heart icon on any stay to save your favorite places here for your next trip.
+                </p>
+                <a href="/listings" class="btn btn-dark px-4 py-2 add-btn">Start exploring</a>
+            </div>
+            <% } else { %>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="wishlistGrid">
+                    <% for(let listing of wishlist) { %>
+                        <div class="col" id="listing-card-<%= listing._id %>">
+                            <div class="card h-100 listing-card wishlist-card position-relative">
+                                <!-- Floating Heart Button to Remove from Wishlist -->
+                                <button class="wishlist-btn active" data-listing-id="<%= listing._id %>"
+                                    title="Remove from wishlist" aria-label="Remove from wishlist">
+                                    <i class="fa-solid fa-heart text-danger"></i>
+                                </button>
+
+                                <a href="/listings/<%= listing._id %>" class="listing-link">
+                                    <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>"
+                                        loading="lazy">
+                                    <div class="card-img-overlay"></div>
+                                    <div class="card-body">
+                                        <p class="card-text">
+                                            <b class="d-block text-truncate" style="font-size: 1.05rem;">
+                                                <%= listing.title %>
+                                            </b>
+                                            <span class="text-muted d-block mb-1">
+                                                <%= listing.location %>, <%= listing.country %>
+                                            </span>
+                                            <span class="fw-semibold fs-6">&#8377; <%= listing.price ?
+                                                    listing.price.toLocaleString("en-IN") : "N/A" %></span>
+                                            <span class="text-muted">/ night</span>
+                                        </p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <% } %>
+                </div>
+                <% } %>
     </div>
 
-    <% if (!wishlist || wishlist.length === 0) { %>
-        <div class="text-center py-5 my-5">
-            <div class="mb-3">
-                <i class="fa-regular fa-heart text-muted" style="font-size: 4rem;"></i>
-            </div>
-            <h3 class="fw-bold mb-2">Your wishlist is empty</h3>
-            <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto;">
-                As you search, tap the heart icon on any stay to save your favorite places here for your next trip.
-            </p>
-            <a href="/listings" class="btn btn-dark px-4 py-2 add-btn">Start exploring</a>
-        </div>
-    <% } else { %>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="wishlistGrid">
-            <% for(let listing of wishlist) { %>
-                <div class="col" id="listing-card-<%= listing._id %>">
-                    <div class="card h-100 listing-card wishlist-card position-relative">
-                        <!-- Floating Heart Button to Remove from Wishlist -->
-                        <button 
-                            class="wishlist-btn active" 
-                            data-listing-id="<%= listing._id %>"
-                            title="Remove from wishlist"
-                            aria-label="Remove from wishlist"
-                        >
-                            <i class="fa-solid fa-heart text-danger"></i>
-                        </button>
+    <script>
+        document.querySelectorAll(".wishlist-btn").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
 
-                        <% 
-                           let reviewCount = (listing.reviews && listing.reviews.length) || 0;
-                           let avgRating = 0;
-                           if (reviewCount > 0) {
-                             let sum = 0, count = 0;
-                             for (let r of listing.reviews) {
-                               const ratingVal = (r && typeof r.rating === 'number') ? r.rating : (typeof r === 'number' ? r : null);
-                               if (ratingVal !== null) {
-                                 sum += ratingVal;
-                                 count++;
-                               }
-                             }
-                             if (count > 0) avgRating = (sum / count).toFixed(1);
-                           }
-                           const isGuestFavorite = (avgRating >= 4.5 && reviewCount >= 2);
-                        %>
-                        <a href="/listings/<%= listing._id %>" class="listing-link">
-                            <div class="position-relative">
-                                <img src="<%= listing.image ? listing.image.url : '' %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
-                                <% if (isGuestFavorite) { %>
-                                    <span class="card-badge guest-favorite-badge">Guest favorite</span>
-                                <% } else if (listing.category && listing.category !== "trending") { %>
-                                    <span class="card-badge category-pill-badge text-capitalize"><%= listing.category %></span>
-                                <% } %>
-                            </div>
-                            <div class="card-img-overlay"></div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-baseline mb-1">
-                                    <b class="text-truncate flex-grow-1 me-2" style="font-size: 1.02rem;"><%= listing.title %></b>
-                                    <span class="card-rating d-inline-flex align-items-center flex-shrink-0">
-                                        <i class="fa-solid fa-star me-1 text-danger"></i>
-                                        <% if (avgRating > 0) { %>
-                                            <span class="fw-semibold text-dark"><%= avgRating %></span>
-                                            <span class="text-muted ms-1 small">(<%= reviewCount %>)</span>
-                                        <% } else { %>
-                                            <span class="text-muted small">New</span>
-                                        <% } %>
-                                    </span>
-                                </div>
-                                <span class="text-muted d-block small mb-1"><%= listing.location %>, <%= listing.country %></span>
-                                <span class="fw-semibold fs-6">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> 
-                                <span class="text-muted small">/ night</span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            <% } %>
-        </div>
-    <% } %>
-</div>
+                const listingId = btn.getAttribute("data-listing-id");
+                const cardCol = document.getElementById(`listing-card-${listingId}`);
 
-<script>
-    document.querySelectorAll(".wishlist-btn").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+                try {
+                    const res = await fetch(`/listings/${listingId}/wishlist`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        }
+                    });
 
-            const listingId = btn.getAttribute("data-listing-id");
-            const cardCol = document.getElementById(`listing-card-${listingId}`);
-
-            try {
-                const res = await fetch(`/listings/${listingId}/wishlist`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
+                    const data = await res.json();
+                    if (data.success) {
+                        if (cardCol) {
+                            cardCol.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                            cardCol.style.opacity = "0";
+                            cardCol.style.transform = "scale(0.9)";
+                            setTimeout(() => {
+                                cardCol.remove();
+                                const remaining = document.querySelectorAll("#wishlistGrid > .col");
+                                if (remaining.length === 0) {
+                                    window.location.reload();
+                                }
+                            }, 300);
+                        }
                     }
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    if (cardCol) {
-                        cardCol.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-                        cardCol.style.opacity = "0";
-                        cardCol.style.transform = "scale(0.9)";
-                        setTimeout(() => {
-                            cardCol.remove();
-                            const remaining = document.querySelectorAll("#wishlistGrid > .col");
-                            if (remaining.length === 0) {
-                                window.location.reload();
-                            }
-                        }, 300);
-                    }
+                } catch (err) {
+                    console.error("Wishlist toggle error:", err);
                 }
-            } catch (err) {
-                console.error("Wishlist toggle error:", err);
-            }
+            });
         });
-    });
-</script>
+    </script>

@@ -127,6 +127,33 @@
 
         <h6 class="fw-bold mb-2">About this space</h6>
         <p class="card-text text-secondary mb-3" style="line-height: 1.6;"><%= listing.description %></p>
+
+        <% if (listing.amenities && listing.amenities.length > 0) { %>
+          <hr class="my-3">
+          <h6 class="fw-bold mb-3">What this place offers</h6>
+          <% 
+             const amenityIcons = {
+               wifi: { label: "Fast WiFi", icon: "fa-solid fa-wifi" },
+               pool: { label: "Swimming Pool", icon: "fa-solid fa-person-swimming" },
+               ac: { label: "Air conditioning", icon: "fa-solid fa-snowflake" },
+               parking: { label: "Free parking on premises", icon: "fa-solid fa-square-parking" },
+               kitchen: { label: "Kitchen", icon: "fa-solid fa-kitchen-set" },
+               tv: { label: "TV", icon: "fa-solid fa-tv" },
+               workspace: { label: "Dedicated workspace", icon: "fa-solid fa-laptop" },
+               pets: { label: "Pet friendly", icon: "fa-solid fa-paw" },
+             };
+          %>
+          <div class="amenities-grid mb-2">
+            <% for (let a of listing.amenities) { %>
+              <% if (amenityIcons[a]) { %>
+                <div class="amenity-item">
+                  <i class="<%= amenityIcons[a].icon %> text-danger"></i>
+                  <span><%= amenityIcons[a].label %></span>
+                </div>
+              <% } %>
+            <% } %>
+          </div>
+        <% } %>
       </div>
     </div>
 

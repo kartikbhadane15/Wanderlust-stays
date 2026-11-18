@@ -90,8 +90,71 @@
         />
         <div class="invalid-feedback">Location is required.</div>
       </div>  
+
+      <!-- Amenities Checkboxes -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Amenities Offered</label>
+        <div class="row row-cols-2 row-cols-md-4 g-2">
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-wifi">
+              <input type="checkbox" id="new-wifi" name="listing[amenities][]" value="wifi">
+              <i class="fa-solid fa-wifi"></i>
+              <span class="amenity-label">WiFi</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-pool">
+              <input type="checkbox" id="new-pool" name="listing[amenities][]" value="pool">
+              <i class="fa-solid fa-person-swimming"></i>
+              <span class="amenity-label">Pool</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-ac">
+              <input type="checkbox" id="new-ac" name="listing[amenities][]" value="ac">
+              <i class="fa-solid fa-snowflake"></i>
+              <span class="amenity-label">AC</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-parking">
+              <input type="checkbox" id="new-parking" name="listing[amenities][]" value="parking">
+              <i class="fa-solid fa-square-parking"></i>
+              <span class="amenity-label">Parking</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-kitchen">
+              <input type="checkbox" id="new-kitchen" name="listing[amenities][]" value="kitchen">
+              <i class="fa-solid fa-kitchen-set"></i>
+              <span class="amenity-label">Kitchen</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-tv">
+              <input type="checkbox" id="new-tv" name="listing[amenities][]" value="tv">
+              <i class="fa-solid fa-tv"></i>
+              <span class="amenity-label">TV</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-workspace">
+              <input type="checkbox" id="new-workspace" name="listing[amenities][]" value="workspace">
+              <i class="fa-solid fa-laptop"></i>
+              <span class="amenity-label">Workspace</span>
+            </label>
+          </div>
+          <div class="col">
+            <label class="amenity-checkbox-card" for="new-pets">
+              <input type="checkbox" id="new-pets" name="listing[amenities][]" value="pets">
+              <i class="fa-solid fa-paw"></i>
+              <span class="amenity-label">Pet Friendly</span>
+            </label>
+          </div>
+        </div>
+      </div>
           
-      <button class="btn btn-dark add-btn mt-3 px-4 py-2">Add Listing</button>
+      <button class="btn btn-dark add-btn mt-2 px-4 py-2">Add Listing</button>
     </form>
   </div>
 </div>

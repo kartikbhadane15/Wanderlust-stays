@@ -17,21 +17,26 @@
   const currentCategory = (typeof category !== "undefined" && category) ? category.toLowerCase() : "all";
 %>
 
-<!-- Filters and Tax Switch Container -->
+<!-- Filters, Tax Switch, and Advanced Filters Button -->
 <div class="filters-wrapper">
     <div id="filters">
         <% for(let cat of categoriesList) { %>
             <% 
                const isSelected = (currentCategory === cat.id) || (currentCategory === "all" && cat.id === "all");
                let targetUrl = "/listings";
+               const params = new URLSearchParams();
                if (cat.id !== "all" && !isSelected) {
-                 targetUrl = "/listings?category=" + cat.id;
-                 if (typeof q !== "undefined" && q) {
-                   targetUrl += "&q=" + encodeURIComponent(q);
-                 }
-               } else if (typeof q !== "undefined" && q) {
-                 targetUrl = "/listings?q=" + encodeURIComponent(q);
+                 params.set("category", cat.id);
                }
+               if (typeof q !== "undefined" && q) params.set("q", q);
+               if (typeof minPrice !== "undefined" && minPrice) params.set("minPrice", minPrice);
+               if (typeof maxPrice !== "undefined" && maxPrice) params.set("maxPrice", maxPrice);
+               if (typeof sort !== "undefined" && sort && sort !== "recommended") params.set("sort", sort);
+               if (typeof selectedAmenities !== "undefined" && selectedAmenities && selectedAmenities.length > 0) {
+                 selectedAmenities.forEach(a => params.append("amenities[]", a));
+               }
+               const qs = params.toString();
+               if (qs) targetUrl += "?" + qs;
             %>
             <a href="<%= targetUrl %>" class="filter <%= isSelected ? 'active-filter' : '' %>">
                 <div class="icon-container"><i class="<%= cat.icon %>"></i></div>
@@ -40,12 +45,23 @@
         <% } %>
     </div>
 
-    <!-- Display total after taxes toggle -->
-    <div class="tax-toggle" id="taxToggleBox">
-        <label class="tax-toggle-label me-3" for="switchCheckDefault">Display total after taxes</label>
-        <div class="form-check form-switch m-0 p-0 d-inline-flex align-items-center">
-            <input class="form-check-input m-0" type="checkbox" role="switch" id="switchCheckDefault">
+    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+        <!-- Display total after taxes toggle -->
+        <div class="tax-toggle" id="taxToggleBox">
+            <label class="tax-toggle-label me-2" for="switchCheckDefault">Display total after taxes</label>
+            <div class="form-check form-switch m-0 p-0 d-inline-flex align-items-center">
+                <input class="form-check-input m-0" type="checkbox" role="switch" id="switchCheckDefault">
+            </div>
         </div>
+
+        <!-- Filters Button -->
+        <button type="button" class="filter-modal-btn" data-bs-toggle="modal" data-bs-target="#filtersModal">
+            <i class="fa-solid fa-sliders me-2"></i>
+            <span>Filters</span>
+            <% if (typeof activeFilterCount !== "undefined" && activeFilterCount > 0) { %>
+                <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.68rem;"><%= activeFilterCount %></span>
+            <% } %>
+        </button>
     </div>
 </div>
 
@@ -58,11 +74,11 @@
         <h4 class="fw-bold">No stays found</h4>
         <p class="text-muted">
             <% if (currentCategory && currentCategory !== "all") { %>
-                There are currently no stays in the <b><%= currentCategory %></b> category.
+                There are currently no stays matching your filters in the <b><%= currentCategory %></b> category.
             <% } else if (typeof q !== "undefined" && q) { %>
                 No stays match your search for "<b><%= q %></b>".
             <% } else { %>
-                No stays are currently available.
+                No stays match your active filter criteria.
             <% } %>
         </p>
         <a href="/listings" class="btn btn-outline-dark px-4 py-2 mt-2">
@@ -154,6 +170,130 @@
     </div>
 <% } %>
 
+<!-- Advanced Filters Modal -->
+<div class="modal fade" id="filtersModal" tabindex="-1" aria-labelledby="filtersModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 border-0 shadow">
+      
+      <div class="modal-header px-4 py-3 border-bottom">
+        <h5 class="modal-title fw-bold" id="filtersModalLabel">Filters</h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form action="/listings" method="GET" id="advancedFiltersForm">
+        <!-- Preserve search query & category if present -->
+        <% if (typeof q !== "undefined" && q) { %>
+          <input type="hidden" name="q" value="<%= q %>">
+        <% } %>
+        <% if (typeof category !== "undefined" && category && category !== "all") { %>
+          <input type="hidden" name="category" value="<%= category %>">
+        <% } %>
+
+        <div class="modal-body p-4">
+          
+          <!-- Price Range Section -->
+          <div class="mb-4">
+            <div class="filter-section-title">Price range (per night)</div>
+            <div class="price-range-box mb-3">
+              <div class="row g-3 align-items-center">
+                <div class="col-6">
+                  <label for="minPriceInput" class="form-label text-muted small fw-semibold">Minimum</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">&#8377;</span>
+                    <input type="number" id="minPriceInput" name="minPrice" class="form-control" placeholder="500" min="0" value="<%= typeof minPrice !== 'undefined' ? minPrice : '' %>">
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="maxPriceInput" class="form-label text-muted small fw-semibold">Maximum</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">&#8377;</span>
+                    <input type="number" id="maxPriceInput" name="maxPrice" class="form-control" placeholder="50000" min="0" value="<%= typeof maxPrice !== 'undefined' ? maxPrice : '' %>">
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <label for="priceSlider" class="form-label text-muted small d-flex justify-content-between">
+                  <span>Price Slider</span>
+                  <span class="fw-semibold text-dark">&#8377; <span id="priceSliderVal"><%= typeof maxPrice !== 'undefined' && maxPrice ? Number(maxPrice).toLocaleString("en-IN") : '25,000' %></span></span>
+                </label>
+                <input type="range" class="form-range price-slider-track" id="priceSlider" min="500" max="50000" step="500" value="<%= typeof maxPrice !== 'undefined' && maxPrice ? maxPrice : '25000' %>">
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Sort Order Section -->
+          <div class="mb-4">
+            <div class="filter-section-title">Sort by</div>
+            <div class="row g-2">
+              <div class="col-6 col-md-3">
+                <input type="radio" class="btn-check" name="sort" id="sortRecommended" value="recommended" <%= (typeof sort === 'undefined' || sort === '' || sort === 'recommended') ? 'checked' : '' %>>
+                <label class="btn btn-outline-dark btn-sm w-100 rounded-pill py-2" for="sortRecommended">Recommended</label>
+              </div>
+              <div class="col-6 col-md-3">
+                <input type="radio" class="btn-check" name="sort" id="sortPriceLow" value="price_asc" <%= (typeof sort !== 'undefined' && sort === 'price_asc') ? 'checked' : '' %>>
+                <label class="btn btn-outline-dark btn-sm w-100 rounded-pill py-2" for="sortPriceLow">Price: Low to High</label>
+              </div>
+              <div class="col-6 col-md-3">
+                <input type="radio" class="btn-check" name="sort" id="sortPriceHigh" value="price_desc" <%= (typeof sort !== 'undefined' && sort === 'price_desc') ? 'checked' : '' %>>
+                <label class="btn btn-outline-dark btn-sm w-100 rounded-pill py-2" for="sortPriceHigh">Price: High to Low</label>
+              </div>
+              <div class="col-6 col-md-3">
+                <input type="radio" class="btn-check" name="sort" id="sortRating" value="rating_desc" <%= (typeof sort !== 'undefined' && sort === 'rating_desc') ? 'checked' : '' %>>
+                <label class="btn btn-outline-dark btn-sm w-100 rounded-pill py-2" for="sortRating">Top Rated</label>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Amenities Section -->
+          <div class="mb-3">
+            <div class="filter-section-title">Amenities</div>
+            <% 
+               const amenitiesList = [
+                 { id: "wifi", label: "Fast WiFi", icon: "fa-solid fa-wifi" },
+                 { id: "pool", label: "Pool", icon: "fa-solid fa-person-swimming" },
+                 { id: "ac", label: "Air conditioning", icon: "fa-solid fa-snowflake" },
+                 { id: "parking", label: "Free parking", icon: "fa-solid fa-square-parking" },
+                 { id: "kitchen", label: "Kitchen", icon: "fa-solid fa-kitchen-set" },
+                 { id: "tv", label: "TV", icon: "fa-solid fa-tv" },
+                 { id: "workspace", label: "Dedicated workspace", icon: "fa-solid fa-laptop" },
+                 { id: "pets", label: "Pet friendly", icon: "fa-solid fa-paw" },
+               ];
+               const currentAmenities = (typeof selectedAmenities !== 'undefined' && selectedAmenities) ? selectedAmenities : [];
+            %>
+            <div class="row row-cols-1 row-cols-sm-2 g-2">
+              <% for(let item of amenitiesList) { %>
+                <div class="col">
+                  <label class="amenity-checkbox-card" for="amenity-<%= item.id %>">
+                    <input type="checkbox" id="amenity-<%= item.id %>" name="amenities[]" value="<%= item.id %>" <%= currentAmenities.includes(item.id) ? 'checked' : '' %>>
+                    <i class="<%= item.icon %>"></i>
+                    <span class="amenity-label"><%= item.label %></span>
+                  </label>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer px-4 py-3 border-top d-flex justify-content-between">
+          <a href="/listings<%= typeof category !== 'undefined' && category && category !== 'all' ? '?category=' + category : '' %>" class="btn btn-link text-dark text-decoration-underline p-0 fw-semibold">
+            Clear all
+          </a>
+          <button type="submit" class="btn btn-dark add-btn rounded-pill px-4 py-2">
+            Apply Filters
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
 <script>
     const taxSwitch = document.getElementById("switchCheckDefault");
     const taxToggleBox = document.getElementById("taxToggleBox");
@@ -167,15 +307,17 @@
         taxPrices.forEach(el => el.classList.toggle("d-none", !isChecked));
     }
 
-    taxSwitch.addEventListener("change", updateTaxPrices);
+    if (taxSwitch && taxToggleBox) {
+      taxSwitch.addEventListener("change", updateTaxPrices);
 
-    // Clicking anywhere on the pill container toggles the switch
-    taxToggleBox.addEventListener("click", (e) => {
-        if (e.target !== taxSwitch) {
-            taxSwitch.checked = !taxSwitch.checked;
-            updateTaxPrices();
-        }
-    });
+      // Clicking anywhere on the pill container toggles the switch
+      taxToggleBox.addEventListener("click", (e) => {
+          if (e.target !== taxSwitch) {
+              taxSwitch.checked = !taxSwitch.checked;
+              updateTaxPrices();
+          }
+      });
+    }
 
     // Wishlist Toggle Handler
     document.querySelectorAll(".wishlist-heart-btn").forEach((btn) => {
@@ -226,4 +368,22 @@
             }
         });
     });
+
+    // Price Slider Sync
+    const priceSlider = document.getElementById("priceSlider");
+    const maxPriceInput = document.getElementById("maxPriceInput");
+    const priceSliderVal = document.getElementById("priceSliderVal");
+
+    if (priceSlider && maxPriceInput) {
+      priceSlider.addEventListener("input", function() {
+        maxPriceInput.value = this.value;
+        if (priceSliderVal) priceSliderVal.textContent = Number(this.value).toLocaleString("en-IN");
+      });
+      maxPriceInput.addEventListener("input", function() {
+        if (this.value) {
+          priceSlider.value = this.value;
+          if (priceSliderVal) priceSliderVal.textContent = Number(this.value).toLocaleString("en-IN");
+        }
+      });
+    }
 </script>
