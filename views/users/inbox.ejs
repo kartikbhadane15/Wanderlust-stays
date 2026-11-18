@@ -1,0 +1,153 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container py-4">
+  <div class="row mb-3">
+    <div class="col-12">
+      <h3 class="fw-bold mb-1">Messages</h3>
+      <p class="text-muted small">Direct communication between you, hosts, and guests.</p>
+    </div>
+  </div>
+
+  <% if (!threads || threads.length === 0) { %>
+    <!-- Empty Inbox State -->
+    <div class="card border-0 shadow-sm rounded-4 text-center py-5 my-3">
+      <div class="card-body py-5">
+        <div class="mb-3">
+          <i class="fa-regular fa-comments text-muted" style="font-size: 4rem;"></i>
+        </div>
+        <h4 class="fw-bold mb-2">No messages yet</h4>
+        <p class="text-muted small mb-4" style="max-width: 420px; margin: 0 auto;">
+          When you send inquiries to hosts or guests message you about your stays, your conversation threads will appear here.
+        </p>
+        <a href="/listings" class="btn btn-dark rounded-pill px-4 py-2">
+          <i class="fa-solid fa-compass me-2"></i>Explore Stays
+        </a>
+      </div>
+    </div>
+  <% } else { %>
+    
+    <div class="row g-3 inbox-container-row">
+      <!-- Left Column: Threads List -->
+      <div class="col-12 col-md-5 col-lg-4">
+        <div class="card border rounded-4 shadow-sm overflow-hidden h-100 inbox-threads-card">
+          <div class="card-header bg-white border-bottom py-3 px-3 d-flex justify-content-between align-items-center">
+            <span class="fw-bold small text-uppercase text-muted">All Conversations</span>
+            <span class="badge bg-light text-dark border rounded-pill"><%= threads.length %></span>
+          </div>
+
+          <div class="list-group list-group-flush inbox-threads-list">
+            <% for (let thread of threads) { %>
+              <% 
+                 const isActive = (activeThread && activeThread.threadKey === thread.threadKey);
+                 const lastDate = new Date(thread.lastMessage.createdAt);
+                 const formattedDate = lastDate.toLocaleDateString("en-IN", { month: "short", day: "numeric" });
+                 const imgUrl = (thread.listing && thread.listing.image) ? thread.listing.image.url : "/images/default.jpg";
+              %>
+              <a 
+                href="/inbox?listing=<%= thread.listing._id %>&user=<%= thread.partner._id %>" 
+                class="list-group-item list-group-item-action p-3 thread-item <%= isActive ? 'active-thread' : '' %>"
+              >
+                <div class="d-flex align-items-center">
+                  <img src="<%= imgUrl %>" alt="<%= thread.listing.title %>" class="thread-listing-thumb me-3">
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                      <h6 class="fw-bold mb-0 text-truncate thread-partner-name">@<%= thread.partner.username %></h6>
+                      <small class="text-muted thread-time"><%= formattedDate %></small>
+                    </div>
+                    <div class="text-muted small text-truncate mb-1"><%= thread.listing.title %></div>
+                    <div class="text-secondary small text-truncate thread-preview-text">
+                      <%= thread.lastMessage.text %>
+                    </div>
+                  </div>
+                  <% if (thread.unreadCount > 0) { %>
+                    <span class="badge bg-danger rounded-pill ms-2"><%= thread.unreadCount %></span>
+                  <% } %>
+                </div>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Active Chat History & Reply -->
+      <div class="col-12 col-md-7 col-lg-8">
+        <% if (activeThread) { %>
+          <div class="card border rounded-4 shadow-sm h-100 inbox-chat-card d-flex flex-column">
+            
+            <!-- Chat Header -->
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <div class="chat-avatar me-3">
+                  <%= activeThread.partner.username.charAt(0).toUpperCase() %>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">@<%= activeThread.partner.username %></h6>
+                  <small class="text-muted"><%= activeThread.listing.title %></small>
+                </div>
+              </div>
+              <a href="/listings/<%= activeThread.listing._id %>" class="btn btn-outline-dark btn-sm rounded-pill px-3" target="_blank">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Stay
+              </a>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="card-body p-3 chat-messages-stream" id="chatStream">
+              <% for (let msg of activeThread.messages) { %>
+                <% 
+                   const isMine = msg.sender._id.equals(currentUser._id);
+                   const msgTime = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                   const msgDate = new Date(msg.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+                %>
+                <div class="chat-bubble-wrapper <%= isMine ? 'mine' : 'theirs' %> mb-3">
+                  <div class="chat-bubble <%= isMine ? 'bubble-outgoing' : 'bubble-incoming' %>">
+                    <div class="bubble-text"><%= msg.text %></div>
+                    <div class="bubble-meta">
+                      <small><%= msgDate %>, <%= msgTime %></small>
+                      <% if (isMine) { %>
+                        <i class="fa-solid fa-check ms-1" style="font-size: 0.65rem;"></i>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+
+            <!-- Reply Box -->
+            <div class="card-footer bg-white border-top p-3">
+              <form action="/inbox/<%= activeThread.listing._id %>/<%= activeThread.partner._id %>" method="POST" class="d-flex align-items-center gap-2">
+                <input 
+                  type="text" 
+                  name="text" 
+                  class="form-control rounded-pill px-3 py-2 shadow-none border chat-input" 
+                  placeholder="Type a message to @<%= activeThread.partner.username %>..." 
+                  required 
+                  autocomplete="off"
+                >
+                <button type="submit" class="btn btn-dark rounded-pill px-4 py-2 flex-shrink-0 send-msg-btn">
+                  <i class="fa-regular fa-paper-plane me-1"></i> Send
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <% } else { %>
+          <div class="card border rounded-4 shadow-sm h-100 p-5 text-center d-flex align-items-center justify-content-center">
+            <i class="fa-regular fa-comment-dots text-muted mb-3" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold">Select a conversation</h5>
+            <p class="text-muted small">Choose a chat thread from the left to view messages.</p>
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+
+  <% } %>
+</div>
+
+<script>
+  // Scroll chat messages to bottom on load
+  const chatStream = document.getElementById("chatStream");
+  if (chatStream) {
+    chatStream.scrollTop = chatStream.scrollHeight;
+  }
+</script>

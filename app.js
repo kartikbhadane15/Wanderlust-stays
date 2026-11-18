@@ -15,11 +15,13 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const Message = require("./models/message.js");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const bookingRouter = require("./routes/booking.js");
+const messageRouter = require("./routes/message.js");
 
 const dbUrl = process.env.ATLASDB_URL ;
 
@@ -73,11 +75,23 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currentUser = req.user;
   res.locals.mapToken = process.env.MAP_TOKEN;
+  if (req.user) {
+    try {
+      res.locals.unreadMessagesCount = await Message.countDocuments({
+        recipient: req.user._id,
+        read: false,
+      });
+    } catch (e) {
+      res.locals.unreadMessagesCount = 0;
+    }
+  } else {
+    res.locals.unreadMessagesCount = 0;
+  }
   next();
 });
 
@@ -85,6 +99,7 @@ app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 app.use("/", bookingRouter);
+app.use("/", messageRouter);
 
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found!"));

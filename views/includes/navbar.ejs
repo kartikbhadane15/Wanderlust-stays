@@ -66,6 +66,15 @@
             <i class="fa-solid fa-suitcase-rolling me-1"></i>
             <span>Trips</span>
           </a>
+          <a class="nav-link d-inline-flex align-items-center" href="/inbox" title="Messages">
+            <i class="fa-regular fa-message me-1"></i>
+            <span>Messages</span>
+            <% if (typeof unreadMessagesCount !== "undefined" && unreadMessagesCount > 0) { %>
+              <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.65rem;">
+                <%= unreadMessagesCount %>
+              </span>
+            <% } %>
+          </a>
           <a class="nav-link d-inline-flex align-items-center" href="/wishlist">
             <i class="fa-regular fa-heart me-1"></i>
             <span>Wishlist</span>
