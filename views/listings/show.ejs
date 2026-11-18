@@ -187,6 +187,8 @@
         <h4 class="mb-3 fw-bold">Leave a Review</h4>
         
         <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
+          <!-- Anti-spam honeypot -->
+          <input type="text" name="_website_hp" class="honeypot-field" tabindex="-1" autocomplete="off">
           <div class="mb-3">
             <label for="rating" class="form-label fw-semibold">Rating</label>
             <fieldset class="starability-slot">
@@ -446,6 +448,8 @@
         </div>
       <% } else { %>
         <form action="/listings/<%= listing._id %>/contact" method="POST" id="contactHostForm">
+          <!-- Anti-spam honeypot -->
+          <input type="text" name="_website_hp" class="honeypot-field" tabindex="-1" autocomplete="off">
           <div class="modal-body p-4">
             
             <div class="d-flex align-items-center mb-3 p-2 bg-light rounded-3">

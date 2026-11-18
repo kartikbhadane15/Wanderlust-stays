@@ -1383,4 +1383,14 @@ footer {
   border-color: #fe424d;
 }
 
+/* Anti-spam honeypot input hidden from visual users */
+.honeypot-field {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
+}
+
+
 
