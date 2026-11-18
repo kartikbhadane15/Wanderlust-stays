@@ -62,10 +62,44 @@
                 <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.68rem;"><%= activeFilterCount %></span>
             <% } %>
         </button>
+
+        <!-- Map Toggle Button in Bar -->
+        <button type="button" class="filter-modal-btn map-bar-toggle-btn" id="mapBarToggleBtn" title="Toggle Map View">
+            <i class="fa-solid fa-map me-1 text-danger"></i>
+            <span>Show map</span>
+        </button>
     </div>
 </div>
 
 <!-- Listings Container: Maximum 3 listings per row on desktop -->
+<%
+  const listingsMapData = (allListings || [])
+    .filter(l => l.geometry && Array.isArray(l.geometry.coordinates) && l.geometry.coordinates.length === 2 && !isNaN(l.geometry.coordinates[0]) && !isNaN(l.geometry.coordinates[1]))
+    .map(l => {
+      let rCount = (l.reviews && l.reviews.length) || 0;
+      let aRating = 0;
+      if (rCount > 0) {
+        let sum = 0, count = 0;
+        for (let r of l.reviews) {
+          const val = (r && typeof r.rating === 'number') ? r.rating : (typeof r === 'number' ? r : null);
+          if (val !== null) { sum += val; count++; }
+        }
+        if (count > 0) aRating = Number((sum / count).toFixed(1));
+      }
+      return {
+        id: l._id.toString(),
+        title: l.title,
+        price: l.price || 0,
+        location: l.location || "",
+        country: l.country || "",
+        image: l.image ? l.image.url : (l.images && l.images.length > 0 ? l.images[0].url : ""),
+        avgRating: aRating,
+        reviewCount: rCount,
+        coordinates: l.geometry.coordinates
+      };
+    });
+%>
+
 <% if (allListings.length === 0) { %>
     <div class="col-12 text-center py-5 my-4">
         <div class="mb-3">
@@ -86,7 +120,11 @@
         </a>
     </div>
 <% } else { %>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+    <div class="explore-split-wrapper" id="exploreSplitWrapper">
+        <div class="row g-4" id="exploreSplitRow">
+            <!-- Listings Column -->
+            <div class="col-12" id="listingsCol">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5" id="listingsGrid">
         <% 
            const userWishlist = (currentUser && currentUser.wishlist) ? currentUser.wishlist.map(id => id.toString()) : [];
         %>
@@ -111,7 +149,7 @@
                }
                const isGuestFavorite = (avgRating >= 4.5 && reviewCount >= 2);
             %>
-            <div class="col">
+            <div class="col listing-col-item" data-listing-id="<%= listing._id %>">
                 <div class="card h-100 listing-card position-relative">
                     <!-- Wishlist Heart Button -->
                     <button 
@@ -167,6 +205,25 @@
                 </div>
             </div>
         <% } %>
+                </div>
+            </div>
+
+            <!-- Sticky Explore Map Column -->
+            <div class="col-12 col-lg-5 d-none" id="mapCol">
+                <div class="explore-map-sticky">
+                    <div id="exploreMap" class="explore-map-canvas"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<!-- Floating Map Pill Button -->
+<% if (allListings && allListings.length > 0) { %>
+    <div class="floating-map-container" id="floatingMapContainer">
+        <button type="button" class="floating-map-pill" id="floatingMapBtn" aria-label="Show map">
+            <i class="fa-solid fa-map me-2"></i><span>Show map</span>
+        </button>
     </div>
 <% } %>
 
@@ -387,3 +444,10 @@
       });
     }
 </script>
+
+<!-- Explore Map Data & Script -->
+<script>
+    const mapToken = "<%= mapToken || process.env.MAP_TOKEN %>";
+</script>
+<script id="listings-map-data" type="application/json"><%- JSON.stringify(listingsMapData) %></script>
+<script src="/js/exploreMap.js"></script>

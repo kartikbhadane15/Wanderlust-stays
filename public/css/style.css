@@ -1039,3 +1039,197 @@ footer {
   font-size: 0.9rem;
   color: #555555;
 }
+
+/* ========================================================
+   FEATURE 9: SPLIT MAP VIEW ("EXPLORE ON MAP")
+   ======================================================== */
+
+.map-bar-toggle-btn.active {
+  background-color: #222222;
+  color: #ffffff;
+  border-color: #222222;
+}
+
+.map-bar-toggle-btn.active i {
+  color: #ffffff !important;
+}
+
+/* Floating Bottom Map Pill (Airbnb Style) */
+.floating-map-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1040;
+  pointer-events: none;
+}
+
+.floating-map-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #222222;
+  color: #ffffff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease, box-shadow 0.22s ease;
+  user-select: none;
+}
+
+.floating-map-pill:hover {
+  background-color: #000000;
+  color: #ffffff;
+  transform: scale(1.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+}
+
+.floating-map-pill:active {
+  transform: scale(0.97);
+}
+
+/* Sticky Split Map Column */
+.explore-split-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.explore-map-sticky {
+  position: sticky;
+  top: 90px;
+  height: calc(100vh - 120px);
+  min-height: 480px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e2e2;
+  background-color: #f0f0f0;
+}
+
+.explore-map-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 991.98px) {
+  .explore-map-sticky {
+    position: static;
+    height: 400px;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Map Price Markers */
+.map-price-pill {
+  background-color: #ffffff;
+  color: #222222;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.map-price-pill:hover,
+.map-price-pill.hovered,
+.map-price-pill.active {
+  background-color: #222222;
+  color: #ffffff;
+  transform: scale(1.15);
+  z-index: 100;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Map Popup Card */
+.custom-map-popup .maplibregl-popup-content {
+  padding: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.custom-map-popup .maplibregl-popup-close-button {
+  font-size: 1.2rem;
+  padding: 4px 8px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 8px;
+  right: 8px;
+  border: none;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.2s ease;
+}
+
+.custom-map-popup .maplibregl-popup-close-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.map-popup-card {
+  width: 240px;
+  overflow: hidden;
+  font-family: inherit;
+  background-color: #ffffff;
+}
+
+.map-popup-img-wrap {
+  display: block;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+.map-popup-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.map-popup-card:hover .map-popup-img {
+  transform: scale(1.05);
+}
+
+.map-popup-content {
+  padding: 10px 12px 12px 12px;
+}
+
+.map-popup-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #222222;
+  text-decoration: none;
+  display: block;
+}
+
+.map-popup-title:hover {
+  color: #fe424d;
+}
+
+/* Card highlight pulse on marker click */
+.highlight-card {
+  outline: 2px solid #fe424d;
+  box-shadow: 0 8px 24px rgba(254, 66, 77, 0.25) !important;
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
