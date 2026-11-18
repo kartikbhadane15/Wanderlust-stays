@@ -216,6 +216,66 @@
   </div>
 </div>
 
+<!-- Realistic Mock Payment Gateway Animation Modal -->
+<div class="payment-gateway-overlay d-none" id="paymentOverlay">
+  <div class="payment-modal-card">
+    
+    <!-- Gateway Header -->
+    <div class="payment-modal-header">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="payment-brand-badge">
+          <i class="fa-solid fa-shield-halved text-success me-1"></i> Razorpay &amp; Stripe Verified
+        </span>
+        <span class="small text-muted font-monospace">REF: <%= booking.bookingCode %></span>
+      </div>
+      <div class="payment-amount-display">
+        <span class="payment-amount-currency">&#8377;</span>
+        <span class="payment-amount-value"><%= booking.totalPrice.toLocaleString("en-IN") %></span>
+      </div>
+      <small class="text-muted">Payment to Wanderlust Stays Inc.</small>
+    </div>
+
+    <!-- Processing Stage Graphics -->
+    <div class="payment-modal-body">
+      <!-- Loading / Authorizing Spinner Stage -->
+      <div id="paymentStageAuthorizing" class="payment-stage">
+        <div class="payment-spinner-wrap">
+          <div class="payment-spinner-ring"></div>
+          <div class="payment-spinner-icon">
+            <i class="fa-solid fa-building-columns" id="paymentStageIcon"></i>
+          </div>
+        </div>
+        <h5 class="fw-bold mt-3 mb-1" id="paymentStageTitle">Connecting to Bank...</h5>
+        <p class="text-muted small mb-3" id="paymentStageSubtitle">Establishing 256-bit encrypted gateway tunnel</p>
+      </div>
+
+      <!-- Success Checkmark Stage -->
+      <div id="paymentStageSuccess" class="payment-stage d-none">
+        <div class="payment-success-circle">
+          <i class="fa-solid fa-check payment-checkmark-icon"></i>
+        </div>
+        <h5 class="fw-bold text-success mt-3 mb-1">Payment Successful!</h5>
+        <p class="text-muted small mb-3">Your reservation is confirmed. Redirecting to receipt...</p>
+      </div>
+
+      <!-- Animated Progress Bar -->
+      <div class="payment-progress-bar-wrap">
+        <div class="payment-progress-bar-fill" id="paymentProgressBar"></div>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="d-flex justify-content-center align-items-center gap-2 mt-3 text-muted small" style="font-size: 0.72rem;">
+        <span><i class="fa-solid fa-lock text-success me-1"></i> 256-bit SSL</span>
+        <span>&bull;</span>
+        <span><i class="fa-solid fa-circle-check text-primary me-1"></i> 3D Secure</span>
+        <span>&bull;</span>
+        <span><i class="fa-solid fa-bolt text-warning me-1"></i> Instant</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
   // Payment Method Switching
   const methodCard = document.getElementById("methodCard");
@@ -260,19 +320,78 @@
     });
   }
 
-  // Submit Simulation
+  // Fake Payment Gateway Animation Sequence
   const paymentForm = document.getElementById("paymentForm");
   const paySubmitBtn = document.getElementById("paySubmitBtn");
   const payBtnText = document.getElementById("payBtnText");
   const payBtnSpinner = document.getElementById("payBtnSpinner");
 
+  const paymentOverlay = document.getElementById("paymentOverlay");
+  const paymentStageAuthorizing = document.getElementById("paymentStageAuthorizing");
+  const paymentStageSuccess = document.getElementById("paymentStageSuccess");
+  const paymentStageTitle = document.getElementById("paymentStageTitle");
+  const paymentStageSubtitle = document.getElementById("paymentStageSubtitle");
+  const paymentStageIcon = document.getElementById("paymentStageIcon");
+  const paymentProgressBar = document.getElementById("paymentProgressBar");
+
+  let isSubmitting = false;
+
   if (paymentForm) {
-    paymentForm.addEventListener("submit", function() {
+    paymentForm.addEventListener("submit", function (e) {
+      if (isSubmitting) return;
+
+      e.preventDefault();
+
+      if (!paymentForm.checkValidity()) {
+        paymentForm.reportValidity();
+        return;
+      }
+
+      isSubmitting = true;
+
+      // Update button state
       if (paySubmitBtn) {
         paySubmitBtn.disabled = true;
         if (payBtnText) payBtnText.textContent = "Processing Payment...";
         if (payBtnSpinner) payBtnSpinner.classList.remove("d-none");
       }
+
+      // Show realistic overlay modal
+      if (paymentOverlay) {
+        paymentOverlay.classList.remove("d-none");
+      }
+
+      // Step 1: Connecting to Bank (0s)
+      if (paymentProgressBar) paymentProgressBar.style.width = "25%";
+      if (paymentStageIcon) paymentStageIcon.className = "fa-solid fa-building-columns text-secondary";
+
+      // Step 2: Authorizing with Network (1.1s)
+      setTimeout(() => {
+        if (paymentStageTitle) paymentStageTitle.textContent = "Authorizing with Card Network...";
+        if (paymentStageSubtitle) paymentStageSubtitle.textContent = "Verifying 3D Secure transaction & OTP authorization";
+        if (paymentProgressBar) paymentProgressBar.style.width = "65%";
+        if (paymentStageIcon) paymentStageIcon.className = "fa-solid fa-shield-halved text-primary";
+      }, 1100);
+
+      // Step 3: Gateway Confirmation (2.2s)
+      setTimeout(() => {
+        if (paymentStageTitle) paymentStageTitle.textContent = "Finalizing Transaction...";
+        if (paymentStageSubtitle) paymentStageSubtitle.textContent = "Approved by bank & generating verified receipt";
+        if (paymentProgressBar) paymentProgressBar.style.width = "90%";
+        if (paymentStageIcon) paymentStageIcon.className = "fa-solid fa-bolt text-warning";
+      }, 2200);
+
+      // Step 4: Success Checkmark Animation (3.2s)
+      setTimeout(() => {
+        if (paymentStageAuthorizing) paymentStageAuthorizing.classList.add("d-none");
+        if (paymentStageSuccess) paymentStageSuccess.classList.remove("d-none");
+        if (paymentProgressBar) paymentProgressBar.style.width = "100%";
+      }, 3200);
+
+      // Step 5: Submit form and navigate to confirmed receipt (4.2s)
+      setTimeout(() => {
+        paymentForm.submit();
+      }, 4200);
     });
   }
 </script>

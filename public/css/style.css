@@ -1469,6 +1469,160 @@ footer {
   pointer-events: none;
 }
 
+/* ========================================================
+   FAKED MOCK PAYMENT GATEWAY PROCESSING ANIMATION
+   ======================================================== */
+
+.payment-gateway-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.payment-modal-card {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  animation: paymentModalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes paymentModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.payment-modal-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+
+.payment-brand-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #198754;
+  background: #e8f5e9;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.payment-amount-display {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #222222;
+  margin-top: 0.25rem;
+}
+
+.payment-modal-body {
+  padding: 1.75rem 1.5rem 1.5rem;
+  text-align: center;
+}
+
+.payment-spinner-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-spinner-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4px solid #f0f0f0;
+  border-top-color: #fe424d;
+  border-radius: 50%;
+  animation: paymentSpin 0.9s linear infinite;
+}
+
+@keyframes paymentSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.payment-spinner-icon {
+  font-size: 1.6rem;
+  color: #555555;
+}
+
+.payment-success-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #28a745;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  animation: paymentSuccessBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes paymentSuccessBounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.payment-checkmark-icon {
+  font-size: 2.2rem;
+}
+
+.payment-progress-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 1.25rem;
+}
+
+.payment-progress-bar-fill {
+  height: 100%;
+  width: 15%;
+  background: linear-gradient(90deg, #fe424d, #28a745);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+
 
 
 
