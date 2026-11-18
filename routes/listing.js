@@ -25,4 +25,7 @@ router.route("/:id")
   .put(isLoggedIn, isOwner, upload.single("listing[image][url]"), validateListing, wrapAsync(listingsController.updateListing))
   .delete(isLoggedIn, isOwner, wrapAsync(listingsController.deleteListing));
 
+// WISHLIST TOGGLE
+router.post("/:id/wishlist", isLoggedIn, wrapAsync(listingsController.toggleWishlist));
+
 module.exports = router;

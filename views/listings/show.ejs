@@ -8,8 +8,22 @@
 <div class="row mt-3 mb-5">
   <div class="col-12 col-md-10 offset-md-1 col-lg-8 offset-lg-2">
     
-    <!-- Title -->
-    <h2 class="mb-3 fw-bold"><%= listing.title %></h2>
+    <% 
+       const isWishlisted = (currentUser && currentUser.wishlist) ? currentUser.wishlist.some(id => id.toString() === listing._id.toString()) : false;
+    %>
+    <!-- Title & Save Button -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <h2 class="fw-bold mb-0"><%= listing.title %></h2>
+      <button 
+        type="button" 
+        id="showWishlistBtn"
+        class="btn btn-outline-dark rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2 <%= isWishlisted ? 'border-danger text-danger' : '' %>" 
+        data-listing-id="<%= listing._id %>"
+      >
+        <i class="<%= isWishlisted ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart' %>"></i>
+        <span id="showWishlistText"><%= isWishlisted ? 'Saved' : 'Save' %></span>
+      </button>
+    </div>
 
     <!-- Listing Main Card -->
     <div class="card listing-card show-card mb-3">
@@ -120,3 +134,51 @@
 </div>
 
 <script src="/js/map.js"></script>
+<script>
+  const showWishlistBtn = document.getElementById("showWishlistBtn");
+  if (showWishlistBtn) {
+    showWishlistBtn.addEventListener("click", async () => {
+      const listingId = showWishlistBtn.getAttribute("data-listing-id");
+      const icon = showWishlistBtn.querySelector("i");
+      const text = document.getElementById("showWishlistText");
+
+      try {
+        const res = await fetch(`/listings/${listingId}/wishlist`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        });
+
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          if (data.isSaved) {
+            icon.classList.remove("fa-regular");
+            icon.classList.add("fa-solid", "text-danger");
+            showWishlistBtn.classList.add("border-danger", "text-danger");
+            text.textContent = "Saved";
+          } else {
+            icon.classList.remove("fa-solid", "text-danger");
+            icon.classList.add("fa-regular");
+            showWishlistBtn.classList.remove("border-danger", "text-danger");
+            text.textContent = "Save";
+          }
+
+          const badge = document.getElementById("navWishlistBadge");
+          if (badge) {
+            badge.textContent = data.count;
+            badge.classList.toggle("d-none", data.count === 0);
+          }
+        }
+      } catch (err) {
+        console.error("Wishlist error:", err);
+      }
+    });
+  }
+</script>

@@ -1,0 +1,142 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+    .wishlist-card {
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .wishlist-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .wishlist-btn {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.85rem;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: transform 0.15s ease, background-color 0.2s ease;
+    }
+
+    .wishlist-btn:hover {
+        transform: scale(1.1);
+        background: #ffffff;
+    }
+
+    .wishlist-btn i {
+        font-size: 1.15rem;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .wishlist-btn.active i {
+        color: #fe424d;
+    }
+</style>
+
+<div class="mt-4 mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fa-solid fa-heart text-danger me-2"></i>My Wishlist
+            </h2>
+            <p class="text-muted mb-0">Your saved dream stays and favorites</p>
+        </div>
+        <a href="/listings" class="btn btn-outline-dark rounded-pill px-3 py-2">
+            <i class="fa-solid fa-compass me-1"></i> Explore more
+        </a>
+    </div>
+
+    <% if (!wishlist || wishlist.length === 0) { %>
+        <div class="text-center py-5 my-5">
+            <div class="mb-3">
+                <i class="fa-regular fa-heart text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="fw-bold mb-2">Your wishlist is empty</h3>
+            <p class="text-muted mb-4" style="max-width: 450px; margin: 0 auto;">
+                As you search, tap the heart icon on any stay to save your favorite places here for your next trip.
+            </p>
+            <a href="/listings" class="btn btn-dark px-4 py-2 add-btn">Start exploring</a>
+        </div>
+    <% } else { %>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="wishlistGrid">
+            <% for(let listing of wishlist) { %>
+                <div class="col" id="listing-card-<%= listing._id %>">
+                    <div class="card h-100 listing-card wishlist-card position-relative">
+                        <!-- Floating Heart Button to Remove from Wishlist -->
+                        <button 
+                            class="wishlist-btn active" 
+                            data-listing-id="<%= listing._id %>"
+                            title="Remove from wishlist"
+                            aria-label="Remove from wishlist"
+                        >
+                            <i class="fa-solid fa-heart text-danger"></i>
+                        </button>
+
+                        <a href="/listings/<%= listing._id %>" class="listing-link">
+                            <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
+                            <div class="card-img-overlay"></div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <b class="d-block text-truncate" style="font-size: 1.05rem;"><%= listing.title %></b>
+                                    <span class="text-muted d-block mb-1"><%= listing.location %>, <%= listing.country %></span>
+                                    <span class="fw-semibold fs-6">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> 
+                                    <span class="text-muted">/ night</span>
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    document.querySelectorAll(".wishlist-btn").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const listingId = btn.getAttribute("data-listing-id");
+            const cardCol = document.getElementById(`listing-card-${listingId}`);
+
+            try {
+                const res = await fetch(`/listings/${listingId}/wishlist`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    if (cardCol) {
+                        cardCol.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                        cardCol.style.opacity = "0";
+                        cardCol.style.transform = "scale(0.9)";
+                        setTimeout(() => {
+                            cardCol.remove();
+                            const remaining = document.querySelectorAll("#wishlistGrid > .col");
+                            if (remaining.length === 0) {
+                                window.location.reload();
+                            }
+                        }, 300);
+                    }
+                }
+            } catch (err) {
+                console.error("Wishlist toggle error:", err);
+            }
+        });
+    });
+</script>

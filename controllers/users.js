@@ -44,3 +44,8 @@ module.exports.logout =  (req, res, next) => {
         res.redirect("/listings");
     });
 };
+
+module.exports.renderWishlist = async (req, res) => {
+    const user = await User.findById(req.user._id).populate("wishlist");
+    res.render("users/wishlist.ejs", { wishlist: user.wishlist || [] });
+};

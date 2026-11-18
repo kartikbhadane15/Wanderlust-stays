@@ -153,6 +153,38 @@
         border-color: #222222;
     }
 
+    /* Wishlist Heart Button */
+    .wishlist-heart-btn {
+        position: absolute;
+        top: 0.85rem;
+        right: 0.85rem;
+        z-index: 10;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s ease;
+    }
+
+    .wishlist-heart-btn:hover {
+        transform: scale(1.18);
+    }
+
+    .wishlist-heart-btn i {
+        font-size: 1.45rem;
+        color: rgba(255, 255, 255, 0.9);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .wishlist-heart-btn.active i {
+        color: #fe424d !important;
+        filter: drop-shadow(0 2px 4px rgba(254, 66, 77, 0.5));
+    }
+
     @media (max-width: 640px) {
         .filters-wrapper {
             flex-direction: column;
@@ -221,14 +253,29 @@
     </div>
 <% } else { %>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        <% 
+           const userWishlist = (currentUser && currentUser.wishlist) ? currentUser.wishlist.map(id => id.toString()) : [];
+        %>
         <% for(let listing of allListings) { %>
             <% 
                const basePrice = listing.price || 0;
                const taxPrice = Math.round(basePrice * 1.18);
+               const isWishlisted = userWishlist.includes(listing._id.toString());
             %>
             <div class="col">
-                <a href="/listings/<%= listing._id %>" class="listing-link">
-                    <div class="card h-100 listing-card">
+                <div class="card h-100 listing-card position-relative">
+                    <!-- Wishlist Heart Button -->
+                    <button 
+                        type="button" 
+                        class="wishlist-heart-btn <%= isWishlisted ? 'active' : '' %>" 
+                        data-listing-id="<%= listing._id %>"
+                        title="<%= isWishlisted ? 'Remove from wishlist' : 'Save to wishlist' %>"
+                        aria-label="Wishlist toggle"
+                    >
+                        <i class="<%= isWishlisted ? 'fa-solid fa-heart' : 'fa-regular fa-heart' %>"></i>
+                    </button>
+
+                    <a href="/listings/<%= listing._id %>" class="listing-link">
                         <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" loading="lazy">
                         <div class="card-img-overlay"></div>
                         <div class="card-body">
@@ -250,8 +297,8 @@
                                 </span>
                             </p>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
         <% } %>
     </div>
@@ -278,5 +325,55 @@
             taxSwitch.checked = !taxSwitch.checked;
             updateTaxPrices();
         }
+    });
+
+    // Wishlist Toggle Handler
+    document.querySelectorAll(".wishlist-heart-btn").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const listingId = btn.getAttribute("data-listing-id");
+            const icon = btn.querySelector("i");
+
+            try {
+                const res = await fetch(`/listings/${listingId}/wishlist`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                });
+
+                if (res.status === 401) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                    if (data.isSaved) {
+                        btn.classList.add("active");
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid");
+                        btn.title = "Remove from wishlist";
+                    } else {
+                        btn.classList.remove("active");
+                        icon.classList.remove("fa-solid");
+                        icon.classList.add("fa-regular");
+                        btn.title = "Save to wishlist";
+                    }
+
+                    // Update navbar badge if present
+                    const badge = document.getElementById("navWishlistBadge");
+                    if (badge) {
+                        badge.textContent = data.count;
+                        badge.classList.toggle("d-none", data.count === 0);
+                    }
+                }
+            } catch (err) {
+                console.error("Wishlist toggle error:", err);
+            }
+        });
     });
 </script>

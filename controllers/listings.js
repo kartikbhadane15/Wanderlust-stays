@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const User = require("../models/user");
 const axios = require("axios");
 
 const MAP_TOKEN = process.env.MAP_TOKEN;
@@ -163,4 +164,45 @@ module.exports.deleteListing = async (req, res) => {
   await Listing.findByIdAndDelete(req.params.id);
   req.flash("success", "Listing Deleted!");
   res.redirect("/listings");
+};
+
+/* ================= TOGGLE WISHLIST ================= */
+module.exports.toggleWishlist = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user._id);
+
+  if (!user.wishlist) {
+    user.wishlist = [];
+  }
+
+  const listingIndex = user.wishlist.findIndex(
+    (listingId) => listingId.toString() === id.toString()
+  );
+  let isSaved = false;
+
+  if (listingIndex === -1) {
+    user.wishlist.push(id);
+    isSaved = true;
+  } else {
+    user.wishlist.splice(listingIndex, 1);
+    isSaved = false;
+  }
+
+  await user.save();
+
+  if (
+    req.xhr ||
+    req.headers["content-type"] === "application/json" ||
+    req.headers.accept?.includes("json")
+  ) {
+    return res.json({
+      success: true,
+      isSaved,
+      count: user.wishlist.length,
+      message: isSaved ? "Added to wishlist!" : "Removed from wishlist!",
+    });
+  }
+
+  req.flash("success", isSaved ? "Added to wishlist!" : "Removed from wishlist!");
+  res.redirect("back");
 };
