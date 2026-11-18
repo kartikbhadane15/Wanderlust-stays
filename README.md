@@ -2,8 +2,8 @@
 
 Wanderlust Stays is a full-stack web application for browsing, listing, reviewing, and managing travel stays with interactive maps and authentication.
 
-## 🔗 Live Website:
-👉 https://wanderlust-stays-cde4.onrender.com/listings
+## 💻 Local Development:
+👉 Running locally at `http://localhost:8080/listings`
 
 ## 🚀 Features
 - User signup & login (Passport.js)

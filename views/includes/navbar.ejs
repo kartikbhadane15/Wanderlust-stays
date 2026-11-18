@@ -1,66 +1,87 @@
 <style>
   .search-btn {
-  background-color: #fe424d;
-  color: #fff;
-  border-radius: 25px;
-  padding: 0.45rem 1rem;
-  border: none;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
+    background-color: #fe424d;
+    color: #fff;
+    border-radius: 25px;
+    padding: 0.45rem 1.25rem;
+    border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    height: 44px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.search-btn:hover {
-  background-color: #e63946; /* slightly darker */
-  color: #fff;
-}
+  .search-btn:hover {
+    background-color: #e63946;
+    color: #fff;
+  }
 
-.search-btn:active {
-  transform: translateY(0);
-}
+  .search-btn:active {
+    transform: translateY(1px);
+  }
 
-.search-btn i {
-  display: inline;
-  margin-right: 0.5rem;
-}
+  .search-btn i {
+    margin-right: 0.5rem;
+  }
 
-.search-inp {
-  border-radius: 25px;
-  padding: 0.5rem 3rem 0.5rem 1rem;
-  font-size: 1rem;
-}
+  .search-inp {
+    border-radius: 25px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.95rem;
+    height: 44px;
+    min-width: 220px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
 
-/* Keep search input + button in one line */
-.navbar form.d-flex {
-  flex-wrap: nowrap;
-  align-items: center;
-}
+  .search-inp:focus {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: #fe424d;
+  }
 
-/* Equal height for input & button */
-.search-inp {
-  height: 44px;
-}
+  /* Mobile responsiveness for search and nav */
+  @media (max-width: 767.98px) {
+    .navbar .search-inp {
+      min-width: 0;
+      width: 100%;
+    }
 
-.search-btn {
-  height: 44px;
-  white-space: nowrap;
-}
+    .navbar form.d-flex {
+      width: 100%;
+      margin: 0.75rem 0;
+    }
 
+    .navbar-collapse {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
 
+    .navbar-nav {
+      gap: 0.25rem;
+    }
+  }
 </style>
 
 <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
-  <div class="container-fluid">
+  <div class="container-fluid px-3 px-md-4">
     
     <!-- Brand -->
-    <a class="navbar-brand" href="/listings">
-      <i class="fa-solid fa-compass"></i>
+    <a class="navbar-brand d-flex align-items-center" href="/listings" aria-label="Wanderlust Home">
+      <i class="fa-solid fa-compass me-2"></i>
+      <span class="d-inline fw-bold" style="color: #fe424d; font-size: 1.25rem;">Wanderlust</span>
     </a>
 
     <!-- Toggle Button -->
     <button
-      class="navbar-toggler"
+      class="navbar-toggler border-0 shadow-none p-2"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -69,14 +90,14 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 
       <!-- Left Links -->
-      <div class="navbar-nav">
+      <div class="navbar-nav me-auto">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
 
       <!-- Search Form -->
-      <div class="navbar-nav ms-auto">
+      <div class="navbar-nav mx-auto">
         <form
-          class="d-flex"
+          class="d-flex align-items-center"
           role="search"
           action="/listings"
           method="GET"
@@ -87,25 +108,27 @@
             name="q"
             value="<%= typeof q !== 'undefined' ? q : '' %>"
             placeholder="Search destinations"
+            aria-label="Search destinations"
           />
 
-          <button class="btn search-btn" type="submit">
+          <button class="btn search-btn" type="submit" aria-label="Submit search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            Search
+            <span>Search</span>
           </button>
         </form>
       </div>
 
-      <!-- Auth Links -->
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Wanderlust your home</a>
+      <!-- Auth & Action Links -->
+      <div class="navbar-nav ms-auto align-items-md-center">
+        <a class="nav-link" href="/listings/new">Airbnb your home</a>
 
         <% if(!currentUser) { %>
-          <a class="nav-link" href="/signup"><b>Signup</b></a>
+          <a class="nav-link" href="/signup"><b>Sign up</b></a>
           <a class="nav-link" href="/login"><b>Log in</b></a>
         <% } %>
 
         <% if(currentUser) { %>
+          <span class="nav-link text-muted d-none d-lg-inline">Hi, <%= currentUser.username %></span>
           <a class="nav-link" href="/logout"><b>Log out</b></a>
         <% } %>
       </div>
