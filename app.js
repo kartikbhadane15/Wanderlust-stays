@@ -4,6 +4,9 @@ if(process.env.NODE_ENV !== "production"){
 
 const express = require("express");
 const app = express();
+
+// Trust reverse proxy (required for Render, Cloudflare, and cloud load balancers)
+app.set("trust proxy", 1);
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
@@ -163,6 +166,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs", { err });
 });
 
-app.listen(8080, () => {
-  console.log("Server is listening on port 8080");
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 });
