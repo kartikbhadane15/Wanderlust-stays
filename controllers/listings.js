@@ -46,7 +46,17 @@ module.exports.index = async (req, res) => {
     }
   }
 
-  let queryBuilder = Listing.find(filter).populate("reviews");
+  // Pagination parameters
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit) || 9); // 9 stays per page (3x3 grid)
+
+  const totalListings = await Listing.countDocuments(filter);
+  const totalPages = Math.ceil(totalListings / limit) || 1;
+
+  let queryBuilder = Listing.find(filter)
+    .populate("reviews")
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   if (sort === "price_asc") {
     queryBuilder = queryBuilder.sort({ price: 1 });
@@ -60,6 +70,18 @@ module.exports.index = async (req, res) => {
 
   if (sort === "rating_desc") {
     allListings = allListings.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+  }
+
+  // JSON API for Load More / Infinite Scroll
+  if (req.query.format === "json" || req.xhr || req.headers.accept?.includes("application/json")) {
+    return res.json({
+      success: true,
+      listings: allListings,
+      currentPage: page,
+      totalPages,
+      totalListings,
+      hasMore: page < totalPages,
+    });
   }
 
   let activeFilterCount = 0;
@@ -77,6 +99,10 @@ module.exports.index = async (req, res) => {
     selectedAmenities,
     sort: sort || "recommended",
     activeFilterCount,
+    currentPage: page,
+    totalPages,
+    totalListings,
+    limit,
   });
 };
 

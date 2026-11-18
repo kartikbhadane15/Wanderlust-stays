@@ -15,6 +15,20 @@
     { id: "beach", label: "Beach", icon: "fa-solid fa-umbrella-beach" },
   ];
   const currentCategory = (typeof category !== "undefined" && category) ? category.toLowerCase() : "all";
+
+  function getPaginationUrl(p) {
+    const params = new URLSearchParams();
+    if (typeof q !== 'undefined' && q) params.set('q', q);
+    if (typeof category !== 'undefined' && category && category !== 'all') params.set('category', category);
+    if (typeof minPrice !== 'undefined' && minPrice) params.set('minPrice', minPrice);
+    if (typeof maxPrice !== 'undefined' && maxPrice) params.set('maxPrice', maxPrice);
+    if (typeof sort !== 'undefined' && sort && sort !== 'recommended') params.set('sort', sort);
+    if (typeof selectedAmenities !== 'undefined' && selectedAmenities && selectedAmenities.length > 0) {
+      selectedAmenities.forEach(a => params.append('amenities[]', a));
+    }
+    params.set('page', p);
+    return '/listings?' + params.toString();
+  }
 %>
 
 <!-- Filters, Tax Switch, and Advanced Filters Button -->
@@ -206,6 +220,47 @@
             </div>
         <% } %>
                 </div>
+
+                <!-- Load More Stays Button (Infinite Scroll / AJAX) -->
+                <% if (typeof totalPages !== 'undefined' && currentPage < totalPages) { %>
+                    <div class="text-center my-4" id="loadMoreSection">
+                        <button type="button" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold load-more-btn" id="loadMoreBtn" data-next-page="<%= currentPage + 1 %>" data-total-pages="<%= totalPages %>">
+                            <span id="loadMoreBtnText">Load more stays</span>
+                            <span class="spinner-border spinner-border-sm ms-2 d-none" id="loadMoreSpinner" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                <% } %>
+
+                <!-- Numbered Pagination Bar -->
+                <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                    <nav aria-label="Page navigation" class="d-flex flex-column align-items-center my-4 pagination-nav">
+                        <ul class="pagination pagination-sm justify-content-center flex-wrap gap-1 mb-2">
+                            <!-- Prev Button -->
+                            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                <a class="page-link page-link-pill px-3" href="<%= getPaginationUrl(currentPage - 1) %>">
+                                    <i class="fa-solid fa-chevron-left me-1"></i> Prev
+                                </a>
+                            </li>
+
+                            <!-- Page Numbers -->
+                            <% for (let p = 1; p <= totalPages; p++) { %>
+                                <li class="page-item <%= currentPage === p ? 'active' : '' %>">
+                                    <a class="page-link page-link-num" href="<%= getPaginationUrl(p) %>"><%= p %></a>
+                                </li>
+                            <% } %>
+
+                            <!-- Next Button -->
+                            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                <a class="page-link page-link-pill px-3" href="<%= getPaginationUrl(currentPage + 1) %>">
+                                    Next <i class="fa-solid fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <small class="text-muted">
+                            Showing <%= ((currentPage - 1) * limit) + 1 %> – <%= Math.min(currentPage * limit, totalListings) %> of <%= totalListings %> stays
+                        </small>
+                    </nav>
+                <% } %>
             </div>
 
             <!-- Sticky Explore Map Column -->
@@ -440,6 +495,113 @@
         if (this.value) {
           priceSlider.value = this.value;
           if (priceSliderVal) priceSliderVal.textContent = Number(this.value).toLocaleString("en-IN");
+        }
+      });
+    }
+
+    // Load More Stays AJAX Handler
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    const loadMoreSpinner = document.getElementById("loadMoreSpinner");
+    const loadMoreBtnText = document.getElementById("loadMoreBtnText");
+    const loadMoreSection = document.getElementById("loadMoreSection");
+    const listingsGrid = document.getElementById("listingsGrid");
+
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener("click", async () => {
+        let nextPage = parseInt(loadMoreBtn.getAttribute("data-next-page"), 10);
+        const totalPages = parseInt(loadMoreBtn.getAttribute("data-total-pages"), 10);
+
+        loadMoreBtn.disabled = true;
+        if (loadMoreSpinner) loadMoreSpinner.classList.remove("d-none");
+        if (loadMoreBtnText) loadMoreBtnText.textContent = "Loading stays...";
+
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          urlParams.set("page", nextPage);
+          urlParams.set("format", "json");
+
+          const res = await fetch(`/listings?${urlParams.toString()}`, {
+            headers: { "Accept": "application/json" }
+          });
+          const data = await res.json();
+
+          if (data.success && data.listings && data.listings.length > 0) {
+            const isTaxChecked = document.getElementById("switchCheckDefault")?.checked;
+
+            data.listings.forEach((listing) => {
+              const basePrice = listing.price || 0;
+              const taxPrice = Math.round(basePrice * 1.18);
+              const reviewCount = (listing.reviews && listing.reviews.length) || 0;
+              let avgRating = 0;
+              if (reviewCount > 0) {
+                let sum = 0, count = 0;
+                for (let r of listing.reviews) {
+                  const val = (r && typeof r.rating === 'number') ? r.rating : (typeof r === 'number' ? r : null);
+                  if (val !== null) { sum += val; count++; }
+                }
+                if (count > 0) avgRating = (sum / count).toFixed(1);
+              }
+              const isGuestFavorite = (avgRating >= 4.5 && reviewCount >= 2);
+
+              const cardCol = document.createElement("div");
+              cardCol.className = "col listing-col-item";
+              cardCol.setAttribute("data-listing-id", listing._id);
+
+              cardCol.innerHTML = `
+                <div class="card h-100 listing-card position-relative">
+                  <button type="button" class="wishlist-heart-btn" data-listing-id="${listing._id}" title="Save to wishlist" aria-label="Wishlist toggle">
+                    <i class="fa-regular fa-heart"></i>
+                  </button>
+                  <a href="/listings/${listing._id}" class="listing-link">
+                    <div class="position-relative">
+                      <img src="${listing.image ? listing.image.url : ''}" class="card-img-top" alt="${listing.title}" loading="lazy">
+                      ${isGuestFavorite ? '<span class="card-badge guest-favorite-badge">Guest favorite</span>' : (listing.category && listing.category !== 'trending' ? `<span class="card-badge category-pill-badge text-capitalize">${listing.category}</span>` : '')}
+                    </div>
+                    <div class="card-img-overlay"></div>
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-baseline mb-1">
+                        <b class="text-truncate flex-grow-1 me-2" style="font-size: 1.02rem;">${listing.title}</b>
+                        <span class="card-rating d-inline-flex align-items-center flex-shrink-0">
+                          <i class="fa-solid fa-star me-1 text-danger"></i>
+                          ${avgRating > 0 ? `<span class="fw-semibold text-dark">${avgRating}</span><span class="text-muted ms-1 small">(${reviewCount})</span>` : '<span class="text-muted small">New</span>'}
+                        </span>
+                      </div>
+                      <span class="text-muted d-block small mb-1">${listing.location}, ${listing.country}</span>
+                      <span class="base-price ${isTaxChecked ? 'd-none' : ''}">
+                        <span class="fw-semibold fs-6">&#8377; ${basePrice.toLocaleString("en-IN")}</span> 
+                        <span class="text-muted small">/ night</span>
+                      </span>
+                      <span class="tax-price ${isTaxChecked ? '' : 'd-none'}">
+                        <span class="fw-semibold fs-6 text-dark">&#8377; ${taxPrice.toLocaleString("en-IN")}</span> 
+                        <span class="text-muted small">total after taxes</span>
+                        <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.68rem;">incl. 18% GST</span>
+                      </span>
+                    </div>
+                  </a>
+                </div>
+              `;
+              listingsGrid.appendChild(cardCol);
+            });
+
+            // Update page counter
+            nextPage++;
+            loadMoreBtn.setAttribute("data-next-page", nextPage);
+
+            if (nextPage > totalPages) {
+              if (loadMoreSection) loadMoreSection.remove();
+            } else {
+              loadMoreBtn.disabled = false;
+              if (loadMoreSpinner) loadMoreSpinner.classList.add("d-none");
+              if (loadMoreBtnText) loadMoreBtnText.textContent = "Load more stays";
+            }
+          } else {
+            if (loadMoreSection) loadMoreSection.remove();
+          }
+        } catch (err) {
+          console.error("Failed to load more stays:", err);
+          loadMoreBtn.disabled = false;
+          if (loadMoreSpinner) loadMoreSpinner.classList.add("d-none");
+          if (loadMoreBtnText) loadMoreBtnText.textContent = "Load more stays";
         }
       });
     }
